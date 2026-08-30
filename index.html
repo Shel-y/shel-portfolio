@@ -61,6 +61,7 @@
             width: 360px;
             height: 520px;
             background-color: rgba(11, 9, 15, 0.85);
+            -webkit-backdrop-filter: blur(4px);
             backdrop-filter: blur(4px);
             color: #00ffcc;
             padding: 24px;
@@ -77,6 +78,9 @@
                 0 0 30px rgba(255, 102, 178, 0.2);
             font-size: 15px;
             text-shadow: 0 0 5px rgba(0, 255, 204, 0.5);
+            -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+            will-change: transform;
         }
 
         #music-player {
@@ -164,6 +168,8 @@
             letter-spacing: 2px;
             color: #00ffcc;
             text-shadow: 0 0 8px #00ffcc, 2px 2px 0px #ff66b2;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
         }
 
         .header p {
@@ -195,6 +201,8 @@
             transform: translateX(5px);
             border-bottom: 1px solid #ff66b2;
             outline: none;
+            -webkit-transform: translateX(5px) translateZ(0);
+            transform: translateX(5px) translateZ(0);
         }
 
         .menu-list li::before {
@@ -257,6 +265,8 @@
         .contact-link:hover {
             color: #fff;
             text-shadow: 0 0 8px #ff66b2;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
         }
 
         .content-section p {
@@ -301,9 +311,6 @@
             background-size: 100% 4px, auto;
         }
 
-        #webgl-container {
-            /* Filtro removido para que las fotos se vean perfectas y naturales */
-        }
     </style>
 </head>
 
