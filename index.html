@@ -4,33 +4,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="dark">
     <title>Portafolio - Shel</title>
-    
+
     <!-- SEO Básico -->
-    <meta name="description" content="Software Engineering student, technology instructor, and cloud architecture specialist. Explore my interactive 3D portfolio featuring projects on AWS, Quantum Computing, and AI.">
-    
+    <meta name="description"
+        content="Software Engineering student, technology instructor, and cloud architecture specialist. Explore my interactive 3D portfolio featuring projects on AWS, Quantum Computing, and AI.">
+
     <!-- Open Graph (Redes Sociales) -->
     <meta property="og:title" content="Portafolio - Shel">
-    <meta property="og:description" content="Software Engineering student, technology instructor, and cloud architecture specialist.">
+    <meta property="og:description"
+        content="Software Engineering student, technology instructor, and cloud architecture specialist.">
     <meta property="og:image" content="./img/home_1.jpg">
     <meta property="og:type" content="website">
 
     <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
 
     <style>
+        :root {
+            --ink: #050308;
+            --panel: #0b090f;
+            --cyan: #00ffcc;
+            --pink: #ff66b2;
+            --pink-dim: rgba(255, 102, 178, .55);
+            --cyan-dim: rgba(0, 255, 204, .55);
+            --text-soft: #aaddcc;
+            --font-mono: "Courier New", Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            background: var(--ink);
+        }
+
         body {
             margin: 0;
+            background-color: var(--ink);
+            font-family: var(--font-mono);
+            color: var(--cyan);
+            /* The decorative grid/glow now lives on its own isolated layer (#backdrop-fx)
+               instead of directly on <body>. Firefox's compositor can misrender a
+               multi-layer body background when a sibling establishes a CSS 3D
+               (preserve-3d/perspective) context — isolating it removes that interaction
+               and is cheaper to repaint regardless of browser. */
+        }
+
+        body.mode-3d {
             overflow: hidden;
-            background-color: #050308;
+            touch-action: none;
+        }
+
+        body.mode-classic {
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* ============ Shared decorative backdrop ============ */
+        #backdrop-fx {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            isolation: isolate;
+            contain: strict;
             background-image:
                 radial-gradient(circle at 50% 50%, rgba(255, 102, 178, 0.15) 0%, transparent 60%),
                 linear-gradient(rgba(0, 255, 204, 0.1) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 255, 204, 0.1) 1px, transparent 1px);
             background-size: 100% 100%, 30px 30px, 30px 30px;
-            font-family: "Courier New", Courier, monospace;
-            touch-action: none;
-            color: #00ffcc;
+        }
+
+        /* ============ 3D phone mode ============ */
+        #mode-3d {
+            position: absolute;
+            inset: 0;
         }
 
         #webgl-container,
@@ -50,6 +102,11 @@
         #css3d-container {
             pointer-events: none;
             z-index: 30;
+            /* Explicit 3D hints for Firefox: without these it can fall back to
+               compositing this layer as an opaque paint of whatever is behind it
+               (the body grid) instead of a true 3D-transformed, see-through layer. */
+            transform-style: preserve-3d;
+            -moz-transform-style: preserve-3d;
         }
 
         #pixel-canvas {
@@ -60,23 +117,29 @@
         #phone-screen {
             width: 360px;
             height: 520px;
-            background-color: rgba(11, 9, 15, 0.98);
-            /* backdrop-filter removido para arreglar los bloques sólidos (WebKit bug) */
-            color: #00ffcc;
+            background-color: var(--panel);
+            color: var(--cyan);
             padding: 24px;
             box-sizing: border-box;
             border-radius: 8px;
             pointer-events: auto;
-            border: 2px solid #00ffcc;
+            outline: 2px solid var(--cyan);
+            outline-offset: -2px;
             overflow-y: auto;
+            overscroll-behavior: contain;
             scrollbar-width: thin;
-            scrollbar-color: #00ffcc #000;
-            /* box-shadow con blur removido para compatibilidad con Firefox 3D */
+            scrollbar-color: var(--cyan) #000;
             font-size: 15px;
-            /* text-shadow con blur removido para compatibilidad con Firefox 3D */
-            -webkit-transform-style: preserve-3d;
-            transform-style: preserve-3d;
-            will-change: transform;
+            position: relative;
+            /* Firefox fix: force this element onto its own compositing layer and
+               stop it from inheriting/blending with whatever sits behind the 3D
+               scene. Without isolation + backface-visibility, Firefox has been
+               observed painting the element's stacking context with the page's
+               background gradient instead of --panel. */
+            isolation: isolate;
+            backface-visibility: hidden;
+            -moz-backface-visibility: hidden;
+            transform: translateZ(0);
         }
 
         #music-player {
@@ -84,16 +147,22 @@
             bottom: 20px;
             right: 20px;
             background: rgba(11, 9, 15, 0.85);
-            backdrop-filter: blur(6px);
             padding: 12px 16px;
             border-radius: 4px;
-            border: 1.5px solid #00ffcc;
+            border: 1.5px solid var(--cyan);
             box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
             z-index: 200;
             display: flex;
             align-items: center;
             gap: 15px;
-            font-family: monospace;
+            font-family: var(--font-mono);
+        }
+
+        @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+            #music-player {
+                backdrop-filter: blur(6px);
+                -webkit-backdrop-filter: blur(6px);
+            }
         }
 
         .track-info {
@@ -107,13 +176,11 @@
             font-size: 13px;
             color: #fff;
             margin-bottom: 3px;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
         }
 
         #track-artist {
             font-size: 11px;
-            color: #ff66b2;
-            text-shadow: 0 0 5px rgba(255, 102, 178, 0.5);
+            color: var(--pink);
         }
 
         .player-controls {
@@ -123,7 +190,7 @@
 
         .player-btn {
             background: none;
-            border: 1px solid #00ffcc;
+            border: 1px solid var(--cyan);
             border-radius: 4px;
             width: 32px;
             height: 32px;
@@ -131,15 +198,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #00ffcc;
+            color: var(--cyan);
             transition: all 0.2s;
         }
 
         .player-btn:hover {
-            background: #00ffcc;
+            background: var(--cyan);
             color: #000;
-            border-color: #00ffcc;
-            box-shadow: 0 0 10px #00ffcc;
+            box-shadow: 0 0 10px var(--cyan);
         }
 
         @media (max-width: 600px) {
@@ -153,7 +219,10 @@
 
         .header {
             text-align: center;
-            border-bottom: 2px dashed #ff66b2;
+            background-image: linear-gradient(to right, var(--pink) 50%, transparent 50%);
+            background-position: bottom;
+            background-size: 10px 2px;
+            background-repeat: repeat-x;
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
@@ -162,17 +231,15 @@
             margin: 0;
             font-size: 26px;
             letter-spacing: 2px;
-            color: #00ffcc;
-            text-shadow: 2px 2px 0px #ff66b2; /* Sin difuminado para Firefox */
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
+            color: var(--cyan);
+            text-shadow: 2px 2px 0px var(--pink);
         }
 
         .header p {
             margin: 5px 0 0 0;
             font-size: 12px;
             line-height: 1.4;
-            color: #aaddcc;
+            color: var(--text-soft);
         }
 
         .menu-list {
@@ -186,27 +253,42 @@
             cursor: pointer;
             font-size: 17px;
             transition: all 0.2s;
-            border-bottom: 1px dashed rgba(0, 255, 204, 0.2);
+            background-image: linear-gradient(to right, rgba(0, 255, 204, 0.2) 50%, transparent 50%);
+            background-position: bottom;
+            background-size: 8px 1px;
+            background-repeat: repeat-x;
             padding-bottom: 5px;
+            border-radius: 2px;
         }
 
-        .menu-list li:hover,
-        .menu-list li:focus {
-            color: #ff66b2;
+        .menu-list li:hover {
+            color: var(--pink);
             transform: translateX(5px);
-            border-bottom: 1px solid #ff66b2;
-            outline: none;
-            -webkit-transform: translateX(5px) translateZ(0);
-            transform: translateX(5px) translateZ(0);
+            background-image: linear-gradient(to right, var(--pink) 100%, transparent 0%);
+            background-size: 100% 1px;
         }
 
-        .menu-list li::before {
-            content: ">_ ";
-            color: #00ffcc;
+        /* Accessibility fix: never remove the focus ring outright — swap it for a
+           visible, on-brand one instead. Keyboard users had no way to see where
+           they were in the menu before. */
+        .menu-list li:focus-visible,
+        .back-btn:focus-visible,
+        .sub-item:focus-visible,
+        a:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--pink);
+            outline-offset: 2px;
+        }
+
+        .menu-list li:focus-visible {
+            color: var(--pink);
+            transform: translateX(5px);
         }
 
         .content-section {
             display: none;
+            width: 100%;
+            height: 100%;
         }
 
         .content-section.active {
@@ -239,7 +321,8 @@
         }
 
         .sub-item {
-            border: 1px dashed #ff66b2;
+            outline: 1px dashed var(--pink);
+            outline-offset: -1px;
             padding: 12px;
             margin-bottom: 12px;
             cursor: pointer;
@@ -252,15 +335,13 @@
 
         .contact-link {
             display: block;
-            color: #ff66b2;
+            color: var(--pink);
             text-decoration: none;
             font-size: 14px;
         }
 
         .contact-link:hover {
             color: #fff;
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
         }
 
         .content-section p {
@@ -273,9 +354,9 @@
             margin-top: 15px;
             padding: 10px 20px;
             background: linear-gradient(45deg, #2b2b2b, #1a1a1a);
-            color: #00ffcc !important;
+            color: var(--cyan) !important;
             text-decoration: none;
-            border: 1px solid #00ffcc;
+            border: 1px solid var(--cyan);
             border-radius: 20px;
             font-weight: bold;
             transition: all 0.2s ease;
@@ -283,8 +364,8 @@
         }
 
         .github-btn:hover {
-            background: #00ffcc;
-            color: #0b090f !important;
+            background: var(--cyan);
+            color: var(--panel) !important;
             transform: scale(1.05);
         }
 
@@ -303,15 +384,678 @@
             background-size: 100% 4px, auto;
         }
 
+        /* ============ Loading veil ============ */
+        #boot-veil {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            background: var(--ink);
+            color: var(--cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 13px;
+            letter-spacing: 2px;
+            transition: opacity 0.5s ease;
+        }
+
+        #boot-veil.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #boot-veil .spinner {
+            width: 26px;
+            height: 26px;
+            border: 2px solid rgba(0, 255, 204, 0.25);
+            border-top-color: var(--cyan);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============ Mode toggle ============ */
+        #mode-toggle {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 400;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            background: rgba(11, 9, 15, 0.85);
+            border: 1.5px solid var(--cyan);
+            border-radius: 20px;
+            color: var(--cyan);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.15);
+        }
+
+        @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+            #mode-toggle {
+                backdrop-filter: blur(6px);
+                -webkit-backdrop-filter: blur(6px);
+            }
+        }
+
+        #mode-toggle:hover {
+            background: var(--cyan);
+            color: var(--panel);
+        }
+
+        #skip-link {
+            position: fixed;
+            top: -50px;
+            left: 16px;
+            z-index: 999;
+            background: var(--cyan);
+            color: var(--panel);
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: top 0.2s;
+        }
+
+        #skip-link:focus {
+            top: 16px;
+        }
+
+        #mode-announcer {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+        }
+
+        /* ============ Classic mode ============ */
+        #mode-classic {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        #classic-bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .classic-shell {
+            position: relative;
+            z-index: 1;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 100px 24px 80px;
+        }
+
+        .classic-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 300;
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+            padding: 16px 24px 16px 64px;
+            background: linear-gradient(to bottom, rgba(5, 3, 8, 0.92), rgba(5, 3, 8, 0));
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        .classic-nav a {
+            color: var(--text-soft);
+            text-decoration: none;
+            padding-bottom: 3px;
+            border-bottom: 1px solid transparent;
+        }
+
+        .classic-nav a:hover,
+        .classic-nav a.is-active {
+            color: var(--cyan);
+            border-bottom-color: var(--cyan);
+        }
+
+        .classic-hero {
+            padding-top: 40px;
+            padding-bottom: 56px;
+            border-bottom: 1px dashed var(--pink-dim);
+        }
+
+        .classic-hero .kicker {
+            color: var(--pink);
+            font-size: 13px;
+            margin: 0 0 14px;
+        }
+
+        .classic-hero h1 {
+            font-size: clamp(32px, 6vw, 48px);
+            line-height: 1.15;
+            margin: 0 0 18px;
+            text-shadow: 2px 2px 0px var(--pink);
+        }
+
+        .classic-hero p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text-soft);
+            max-width: 58ch;
+            margin: 0 0 26px;
+        }
+
+        .classic-hero .cta-row {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .classic-cta {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            text-decoration: none;
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            transition: all 0.2s ease;
+        }
+
+        .classic-cta.solid {
+            background: var(--cyan);
+            color: var(--panel);
+        }
+
+        .classic-cta:hover {
+            transform: scale(1.04);
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.35);
+        }
+
+        .classic-section {
+            padding: 56px 0;
+            border-bottom: 1px dashed rgba(0, 255, 204, 0.2);
+        }
+
+        .classic-section:last-of-type {
+            border-bottom: none;
+        }
+
+        .classic-section h2 {
+            font-size: 13px;
+            letter-spacing: 3px;
+            color: var(--pink);
+            margin: 0 0 20px;
+        }
+
+        .classic-section .lede {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #dfeee8;
+            max-width: 62ch;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .project-card {
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            padding: 18px;
+            border-radius: 4px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .project-card:hover {
+            border-color: var(--cyan);
+            transform: translateY(-3px);
+        }
+
+        .project-card h3 {
+            margin: 0 0 8px;
+            font-size: 17px;
+            color: #fff;
+        }
+
+        .project-card .stack {
+            font-size: 12px;
+            color: var(--pink);
+            margin: 0 0 12px;
+        }
+
+        .project-card p {
+            font-size: 14px;
+            line-height: 1.55;
+            color: var(--text-soft);
+            margin: 0 0 14px;
+        }
+
+        .project-card a {
+            font-size: 13px;
+            color: var(--cyan);
+            text-decoration: none;
+        }
+
+        .project-card a:hover {
+            text-decoration: underline;
+        }
+
+        .session-list {
+            list-style: none;
+            margin: 8px 0 0;
+            padding: 0;
+        }
+
+        .session-list li {
+            padding: 16px 0;
+            border-top: 1px solid rgba(0, 255, 204, 0.15);
+        }
+
+        .session-list li:first-child {
+            border-top: none;
+        }
+
+        .session-list h3 {
+            margin: 0 0 4px;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .session-list .venue {
+            font-size: 12px;
+            color: var(--pink);
+            margin: 0 0 8px;
+        }
+
+        .session-list p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.55;
+            color: var(--text-soft);
+        }
+
+        .contact-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .contact-grid a {
+            color: var(--cyan);
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        .contact-grid a:hover {
+            color: var(--pink);
+        }
+
+        .classic-footer {
+            text-align: center;
+            padding: 30px 24px 40px;
+            font-size: 11px;
+            color: #667;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
     </style>
 </head>
 
-<body>
+<body class="mode-3d">
 
-    <div id="webgl-container"></div>
-    <div id="noise-overlay"></div>
-    <div id="css3d-container"></div>
-    <canvas id="pixel-canvas"></canvas>
+    <a href="#mode-classic" id="skip-link">Skip to content</a>
+    <div id="mode-announcer" role="status" aria-live="polite"></div>
+
+    <div id="boot-veil">
+        <div class="spinner" aria-hidden="true"></div>
+        <span>LOADING…</span>
+    </div>
+
+    <button id="mode-toggle" type="button" aria-pressed="false">
+        <span id="mode-toggle-label">☰ Classic view</span>
+    </button>
+
+    <div id="backdrop-fx" aria-hidden="true"></div>
+
+    <!-- ============ 3D PHONE EXPERIENCE ============ -->
+    <div id="mode-3d">
+        <div id="webgl-container"></div>
+        <div id="noise-overlay"></div>
+        <div id="css3d-container"></div>
+        <canvas id="pixel-canvas"></canvas>
+
+        <!-- PANTALLA DEL CELULAR (MENÚ Y SUBSECCIONES) -->
+        <div id="phone-ui" style="display: none;">
+            <div id="phone-screen">
+
+                <!-- Menú Principal -->
+                <div id="menu-home" class="content-section active">
+                    <div class="header">
+                        <h1>SHEL</h1>
+                        <p>SOFTWARE & QAI SOLUTIONS ENGINEER<br>AWS COMMUNITY BUILDER | TECH SPEAKER</p>
+                    </div>
+                    <ul class="menu-list" role="menu">
+                        <li role="menuitem" onclick="navigateTo('about')" tabindex="0"
+                            onkeypress="if(event.key==='Enter') navigateTo('about')">1. ABOUT ME</li>
+                        <li role="menuitem" onclick="navigateTo('projects')" tabindex="0"
+                            onkeypress="if(event.key==='Enter') navigateTo('projects')">2. PROJECTS</li>
+                        <li role="menuitem" onclick="navigateTo('sessions')" tabindex="0"
+                            onkeypress="if(event.key==='Enter') navigateTo('sessions')">3. SESSIONS</li>
+                        <li role="menuitem" onclick="navigateTo('contact')" tabindex="0"
+                            onkeypress="if(event.key==='Enter') navigateTo('contact')">4. CONTACT</li>
+                    </ul>
+                </div>
+
+                <!-- About Me -->
+                <div id="menu-about" class="content-section">
+                    <div class="back-btn" onclick="navigateTo('home')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('home')">[x] RETURN</div>
+                    <h2>ABOUT ME</h2>
+                    <p>Software Engineering student, technology instructor, and cloud architecture specialist with
+                        international research experience in Osaka, Japan.</p>
+                    <p>Founder of AWSpectrum LATAM, exploring quantum computing, multi-agent AI workflows, and
+                        building accessible pathways for tech practitioners across Latin America.</p>
+                </div>
+
+                <!-- Lista de Proyectos -->
+                <div id="menu-projects" class="content-section">
+                    <div class="back-btn" onclick="navigateTo('home')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('home')">[x] RETURN</div>
+                    <h2>PROJECTS</h2>
+                    <div class="sub-item" onclick="navigateTo('proj1')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('proj1')"><strong>Sorority</strong><br>
+                        <small>Rust / Flutter / 3D Trust Network</small>
+                    </div>
+                    <div class="sub-item" onclick="navigateTo('proj2')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('proj2')"><strong>Traffic Rain AI</strong><br>
+                        <small>Python / AWS Braket / Machine Learning</small>
+                    </div>
+                    <div class="sub-item" onclick="navigateTo('proj3')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('proj3')"><strong>Q-Drift CLI</strong><br>
+                        <small>Python / Shannon Entropy</small>
+                    </div>
+                    <div class="sub-item" onclick="navigateTo('proj4')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('proj4')"><strong>NeuroCopilot</strong><br>
+                        <small>LangChain / Multi-agent</small>
+                    </div>
+                </div>
+
+                <!-- Subsección: Proyecto 1 (Sorority) -->
+                <div id="menu-proj1" class="content-section">
+                    <div class="back-btn" onclick="navigateTo('projects')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('projects')">[&lt;] BACK TO PROJECTS</div>
+                    <h2>Sorority</h2>
+                    <p>Decentralized 3D trust network combining a Rust simulation backend with a Flutter UI via FFI
+                        to visualize collective safety and alert propagation.</p>
+                    <a href="https://github.com/Shel-y/Sorority" target="_blank" rel="noopener" class="github-btn">
+                        <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+                            style="vertical-align: middle; margin-right: 6px;">
+                            <path
+                                d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z">
+                            </path>
+                        </svg>
+                        GitHub Repo
+                    </a>
+                </div>
+
+                <!-- Subsección: Proyecto 2 (Traffic Rain AI) -->
+                <div id="menu-proj2" class="content-section">
+                    <div class="back-btn" onclick="navigateTo('projects')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('projects')">[&lt;] BACK TO PROJECTS</div>
+                    <h2>Traffic Rain AI</h2>
+                    <p>Hybrid classical-quantum system processing flooding data using machine learning, graph
+                        algorithms, and Amazon Braket for urban route optimization.</p>
+                    <a href="https://github.com/Shel-y/traffic-rain-ai" target="_blank" rel="noopener"
+                        class="github-btn">
+                        <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+                            style="vertical-align: middle; margin-right: 6px;">
+                            <path
+                                d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z">
+                            </path>
+                        </svg>
+                        GitHub Repo
+                    </a>
+                </div>
+
+                <!-- Subsección: Proyecto 3 (Q-Drift CLI) -->
+                <div id="menu-proj3" class="content-section">
+                    <div class="back-btn" onclick="navigateTo('projects')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('projects')">[&lt;] BACK TO PROJECTS</div>
+                    <h2>Q-Drift CLI</h2>
+                    <p>Command-line tool measuring probabilistic failure rates in distributed logic paths using
+                        Shannon entropy and noise models.</p>
+                    <a href="https://github.com/Shel-y/q-drift" target="_blank" rel="noopener" class="github-btn">
+                        <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+                            style="vertical-align: middle; margin-right: 6px;">
+                            <path
+                                d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z">
+                            </path>
+                        </svg>
+                        GitHub Repo
+                    </a>
+                </div>
+
+                <!-- Subsección: Proyecto 4 (NeuroCopilot) -->
+                <div id="menu-proj4" class="content-section">
+                    <div class="back-btn" onclick="navigateTo('projects')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('projects')">[&lt;] BACK TO PROJECTS</div>
+                    <h2>NeuroCopilot</h2>
+                    <p>Multi-agent AI application built with LangChain, LangGraph, and Gradio to process simulated
+                        neural signals and generate structured reasoning.</p>
+                    <a href="https://github.com/Shel-y/Neurocopilot" target="_blank" rel="noopener"
+                        class="github-btn">
+                        <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+                            style="vertical-align: middle; margin-right: 6px;">
+                            <path
+                                d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z">
+                            </path>
+                        </svg>
+                        GitHub Repo
+                    </a>
+                </div>
+
+                <!-- Lista de Sesiones -->
+                <div id="menu-sessions" class="content-section">
+                    <div class="back-btn" onclick="navigateTo('home')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('home')">[x] RETURN</div>
+                    <h2>SESSIONS & TALKS</h2>
+                    <div class="sub-item" onclick="navigateTo('sess1')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('sess1')">
+                        <strong>AWS Summit Mexico 2026</strong><br>
+                        <small>Atrapado en la lluvia / Spotlight Quantum Path</small>
+                    </div>
+                    <div class="sub-item" onclick="navigateTo('sess2')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('sess2')">
+                        <strong>AWSome Women Summit LATAM</strong><br>
+                        <small>De lo Clásico a lo Cuántico con AWS</small>
+                    </div>
+                    <div class="sub-item" onclick="navigateTo('sess3')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('sess3')">
+                        <strong>Community & Mentorship</strong><br>
+                        <small>UNAM CertOps Speaker & AWS Builders Mentor</small>
+                    </div>
+                </div>
+
+                <!-- Subsección: Sesión 1 -->
+                <div id="menu-sess1" class="content-section">
+                    <div class="back-btn" onclick="navigateTo('sessions')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('sessions')">[&lt;] BACK TO SESSIONS</div>
+                    <h2>AWS Summit Mexico 2026</h2>
+                    <p>Presentación de "Atrapado en la lluvia: Tu ruta inteligente en segundos" y participación en un
+                        espacio <em>Spotlight</em> compartiendo mi camino hacia la computación cuántica en la nube.
+                    </p>
+                </div>
+
+                <!-- Subsección: Sesión 2 -->
+                <div id="menu-sess2" class="content-section">
+                    <div class="back-btn" onclick="navigateTo('sessions')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('sessions')">[&lt;] BACK TO SESSIONS</div>
+                    <h2>AWSome Women Summit LATAM</h2>
+                    <p>Conferencia magistral "De lo Clásico a lo Cuántico con AWS", demostrando arquitecturas de
+                        optimización híbrida en la nube (también presentada en oficinas de Clara).</p>
+                </div>
+
+                <!-- Subsección: Sesión 3 -->
+                <div id="menu-sess3" class="content-section">
+                    <div class="back-btn" onclick="navigateTo('sessions')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('sessions')">[&lt;] BACK TO SESSIONS</div>
+                    <h2>Community & Mentorship</h2>
+                    <p>Speaker invitado en el reto de certificación CertOps del Student Builder Group UNAM y
+                        selección como mentora oficial en el bootcamp de builders de AWS.</p>
+                </div>
+
+                <!-- Contacto -->
+                <div id="menu-contact" class="content-section">
+                    <div class="back-btn" onclick="navigateTo('home')" tabindex="0" role="button"
+                        onkeypress="if(event.key==='Enter') navigateTo('home')">[x] RETURN</div>
+                    <h2>LINK_TREE</h2>
+                    <p>Let's connect and build the future of cloud & quantum.</p>
+                    <div class="sub-item"><a href="https://github.com/Shel-y" target="_blank" rel="noopener"
+                            class="contact-link">&gt; GITHUB // Code</a></div>
+                    <div class="sub-item"><a href="https://www.linkedin.com/in/joselyn-lagunas/" target="_blank"
+                            rel="noopener" class="contact-link">&gt; LINKEDIN // Connect</a></div>
+                    <div class="sub-item"><a href="mailto:she.lagunas@gmail.com" class="contact-link">&gt; EMAIL //
+                            Direct</a></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ CLASSIC / TRADITIONAL EXPERIENCE ============ -->
+    <div id="mode-classic" style="display: none;">
+        <canvas id="classic-bg-canvas" aria-hidden="true"></canvas>
+
+        <nav class="classic-nav" aria-label="Section navigation">
+            <a href="#c-about">About</a>
+            <a href="#c-projects">Projects</a>
+            <a href="#c-sessions">Sessions</a>
+            <a href="#c-contact">Contact</a>
+        </nav>
+
+        <main class="classic-shell">
+            <header class="classic-hero">
+                <p class="kicker">&gt;_ Software & QAI Solutions Engineer</p>
+                <h1>Shel builds the bridge between cloud, quantum, and the people learning to use them.</h1>
+                <p>AWS Community Builder, technical speaker, and founder of AWSpectrum LATAM — a community focused
+                    on diversity and inclusion in tech across Latin America. Currently exploring quantum computing,
+                    multi-agent AI workflows, and cloud architecture.</p>
+                <div class="cta-row">
+                    <a class="classic-cta solid" href="#c-projects">View projects</a>
+                    <a class="classic-cta" href="#c-contact">Get in touch</a>
+                </div>
+            </header>
+
+            <section id="c-about" class="classic-section">
+                <h2>ABOUT</h2>
+                <p class="lede">Software Engineering student, technology instructor, and cloud architecture
+                    specialist with international research experience in Osaka, Japan. Founder of AWSpectrum LATAM,
+                    exploring quantum computing, multi-agent AI workflows, and building accessible pathways for tech
+                    practitioners across Latin America.</p>
+            </section>
+
+            <section id="c-projects" class="classic-section">
+                <h2>PROJECTS</h2>
+                <div class="project-grid">
+                    <article class="project-card">
+                        <h3>Sorority</h3>
+                        <p class="stack">Rust / Flutter / 3D Trust Network</p>
+                        <p>Decentralized 3D trust network combining a Rust simulation backend with a Flutter UI via
+                            FFI to visualize collective safety and alert propagation.</p>
+                        <a href="https://github.com/Shel-y/Sorority" target="_blank" rel="noopener">GitHub Repo
+                            ↗</a>
+                    </article>
+                    <article class="project-card">
+                        <h3>Traffic Rain AI</h3>
+                        <p class="stack">Python / AWS Braket / Machine Learning</p>
+                        <p>Hybrid classical-quantum system processing flooding data using machine learning, graph
+                            algorithms, and Amazon Braket for urban route optimization.</p>
+                        <a href="https://github.com/Shel-y/traffic-rain-ai" target="_blank" rel="noopener">GitHub
+                            Repo ↗</a>
+                    </article>
+                    <article class="project-card">
+                        <h3>Q-Drift CLI</h3>
+                        <p class="stack">Python / Shannon Entropy</p>
+                        <p>Command-line tool measuring probabilistic failure rates in distributed logic paths using
+                            Shannon entropy and noise models.</p>
+                        <a href="https://github.com/Shel-y/q-drift" target="_blank" rel="noopener">GitHub Repo
+                            ↗</a>
+                    </article>
+                    <article class="project-card">
+                        <h3>NeuroCopilot</h3>
+                        <p class="stack">LangChain / Multi-agent</p>
+                        <p>Multi-agent AI application built with LangChain, LangGraph, and Gradio to process
+                            simulated neural signals and generate structured reasoning.</p>
+                        <a href="https://github.com/Shel-y/Neurocopilot" target="_blank" rel="noopener">GitHub Repo
+                            ↗</a>
+                    </article>
+                </div>
+            </section>
+
+            <section id="c-sessions" class="classic-section">
+                <h2>SESSIONS & TALKS</h2>
+                <ul class="session-list">
+                    <li>
+                        <h3>AWS Summit Mexico 2026</h3>
+                        <p class="venue">Atrapado en la lluvia / Spotlight Quantum Path</p>
+                        <p>Presentación de "Atrapado en la lluvia: Tu ruta inteligente en segundos" y participación
+                            en un espacio Spotlight compartiendo mi camino hacia la computación cuántica en la nube.
+                        </p>
+                    </li>
+                    <li>
+                        <h3>AWSome Women Summit LATAM</h3>
+                        <p class="venue">De lo Clásico a lo Cuántico con AWS</p>
+                        <p>Conferencia magistral demostrando arquitecturas de optimización híbrida en la nube
+                            (también presentada en oficinas de Clara).</p>
+                    </li>
+                    <li>
+                        <h3>Community & Mentorship</h3>
+                        <p class="venue">UNAM CertOps Speaker & AWS Builders Mentor</p>
+                        <p>Speaker invitado en el reto de certificación CertOps del Student Builder Group UNAM y
+                            selección como mentora oficial en el bootcamp de builders de AWS.</p>
+                    </li>
+                </ul>
+            </section>
+
+            <section id="c-contact" class="classic-section">
+                <h2>CONTACT</h2>
+                <p class="lede">Let's connect and build the future of cloud & quantum.</p>
+                <div class="contact-grid">
+                    <a href="https://github.com/Shel-y" target="_blank" rel="noopener">&gt; GITHUB // Code</a>
+                    <a href="https://www.linkedin.com/in/joselyn-lagunas/" target="_blank" rel="noopener">&gt;
+                        LINKEDIN // Connect</a>
+                    <a href="mailto:she.lagunas@gmail.com">&gt; EMAIL // Direct</a>
+                </div>
+            </section>
+        </main>
+
+        <footer class="classic-footer">Shel — Mexico City · built with Three.js</footer>
+    </div>
 
     <div id="music-player">
         <div class="track-info">
@@ -324,176 +1068,7 @@
         </div>
     </div>
 
-    <!-- PANTALLA DEL CELULAR (MENÚ Y SUBSECCIONES) -->
-    <div id="phone-ui" style="display: none;">
-        <div id="phone-screen">
-
-            <!-- Menú Principal -->
-            <div id="menu-home" class="content-section active">
-                <div class="header">
-                    <h1>SHEL</h1>
-                    <p>SOFTWARE & QAI SOLUTIONS ENGINEER<br>AWS COMMUNITY BUILDER | TECH SPEAKER</p>
-                </div>
-                <ul class="menu-list">
-                    <li onclick="navigateTo('about')" role="button" tabindex="0" onkeypress="if(event.key==='Enter') navigateTo('about')">1. ABOUT ME</li>
-                    <li onclick="navigateTo('projects')" role="button" tabindex="0" onkeypress="if(event.key==='Enter') navigateTo('projects')">2. PROJECTS</li>
-                    <li onclick="navigateTo('sessions')" role="button" tabindex="0" onkeypress="if(event.key==='Enter') navigateTo('sessions')">3. SESSIONS</li>
-                    <li onclick="navigateTo('contact')" role="button" tabindex="0" onkeypress="if(event.key==='Enter') navigateTo('contact')">4. CONTACT</li>
-                </ul>
-            </div>
-
-            <!-- About Me -->
-            <div id="menu-about" class="content-section">
-                <div class="back-btn" onclick="navigateTo('home')">[x] RETURN</div>
-                <h2>ABOUT ME</h2>
-                <p>Software Engineering student, technology instructor, and cloud architecture specialist with
-                    international research experience in Osaka, Japan.</p>
-                <p>Founder of AWSpectrum LATAM, exploring quantum computing, multi-agent AI workflows, and building
-                    accessible pathways for tech practitioners across Latin America.</p>
-            </div>
-
-            <!-- Lista de Proyectos -->
-            <div id="menu-projects" class="content-section">
-                <div class="back-btn" onclick="navigateTo('home')">[x] RETURN</div>
-                <h2>PROJECTS</h2>
-                <div class="sub-item" onclick="navigateTo('proj1')"><strong>Sorority</strong><br><small>Rust / Flutter /
-                        3D Trust Network</small></div>
-                <div class="sub-item" onclick="navigateTo('proj2')"><strong>Traffic Rain AI</strong><br><small>Python /
-                        AWS Braket / Machine Learning</small></div>
-                <div class="sub-item" onclick="navigateTo('proj3')"><strong>Q-Drift CLI</strong><br><small>Python /
-                        Shannon Entropy</small></div>
-                <div class="sub-item" onclick="navigateTo('proj4')"><strong>NeuroCopilot</strong><br><small>LangChain /
-                        Multi-agent</small></div>
-            </div>
-
-            <!-- Subsección: Proyecto 1 (Sorority) -->
-            <div id="menu-proj1" class="content-section">
-                <div class="back-btn" onclick="navigateTo('projects')">[<] BACK TO PROJECTS</div>
-                        <h2>Sorority</h2>
-                        <p>Decentralized 3D trust network combining a Rust simulation backend with a Flutter UI via FFI
-                            to visualize collective safety and alert propagation.</p>
-                        <a href="https://github.com/Shel-y/Sorority" target="_blank" class="github-btn">
-                            <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"
-                                style="vertical-align: middle; margin-right: 6px;">
-                                <path
-                                    d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z">
-                                </path>
-                            </svg>
-                            GitHub Repo
-                        </a>
-                </div>
-
-                <!-- Subsección: Proyecto 2 (Traffic Rain AI) -->
-                <div id="menu-proj2" class="content-section">
-                    <div class="back-btn" onclick="navigateTo('projects')">[<] BACK TO PROJECTS</div>
-                            <h2>Traffic Rain AI</h2>
-                            <p>Hybrid classical-quantum system processing flooding data using machine learning, graph
-                                algorithms, and Amazon Braket for urban route optimization.</p>
-                            <a href="https://github.com/Shel-y/traffic-rain-ai" target="_blank" class="github-btn">
-                                <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"
-                                    style="vertical-align: middle; margin-right: 6px;">
-                                    <path
-                                        d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z">
-                                    </path>
-                                </svg>
-                                GitHub Repo
-                            </a>
-                    </div>
-
-                    <!-- Subsección: Proyecto 3 (Q-Drift CLI) -->
-                    <div id="menu-proj3" class="content-section">
-                        <div class="back-btn" onclick="navigateTo('projects')">[<] BACK TO PROJECTS</div>
-                                <h2>Q-Drift CLI</h2>
-                                <p>Command-line tool measuring probabilistic failure rates in distributed logic paths
-                                    using Shannon entropy and noise models.</p>
-                                <a href="https://github.com/Shel-y/q-drift" target="_blank" class="github-btn">
-                                    <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"
-                                        style="vertical-align: middle; margin-right: 6px;">
-                                        <path
-                                            d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z">
-                                        </path>
-                                    </svg>
-                                    GitHub Repo
-                                </a>
-                        </div>
-
-                        <!-- Subsección: Proyecto 4 (NeuroCopilot) -->
-                        <div id="menu-proj4" class="content-section">
-                            <div class="back-btn" onclick="navigateTo('projects')">[<] BACK TO PROJECTS</div>
-                                    <h2>NeuroCopilot</h2>
-                                    <p>Multi-agent AI application built with LangChain, LangGraph, and Gradio to process
-                                        simulated neural signals and generate structured reasoning.</p>
-                                    <a href="https://github.com/Shel-y/Neurocopilot" target="_blank" class="github-btn">
-                                        <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"
-                                            style="vertical-align: middle; margin-right: 6px;">
-                                            <path
-                                                d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z">
-                                            </path>
-                                        </svg>
-                                        GitHub Repo
-                                    </a>
-                            </div>
-                            <!-- Lista de Sesiones -->
-                            <div id="menu-sessions" class="content-section">
-                                <div class="back-btn" onclick="navigateTo('home')">[x] RETURN</div>
-                                <h2>SESSIONS & TALKS</h2>
-                                <div class="sub-item" onclick="navigateTo('sess1')"><strong>AWS Summit Mexico
-                                        2026</strong><br><small>Atrapado en la lluvia / Spotlight Quantum Path</small>
-                                </div>
-                                <div class="sub-item" onclick="navigateTo('sess2')"><strong>AWSome Women Summit
-                                        LATAM</strong><br><small>De lo Clásico a lo Cuántico con AWS</small></div>
-                                <div class="sub-item" onclick="navigateTo('sess3')"><strong>Community &
-                                        Mentorship</strong><br><small>UNAM CertOps Speaker & AWS Builders Mentor</small>
-                                </div>
-                            </div>
-
-                            <!-- Subsección: Sesión 1 -->
-                            <div id="menu-sess1" class="content-section">
-                                <div class="back-btn" onclick="navigateTo('sessions')">[<] BACK TO SESSIONS</div>
-                                        <h2>AWS Summit Mexico 2026</h2>
-                                        <p>Presentación de "Atrapado en la lluvia: Tu ruta inteligente en segundos" y
-                                            participación en un espacio <em>Spotlight</em> compartiendo mi camino hacia
-                                            la computación cuántica en la nube.</p>
-                                </div>
-
-                                <!-- Subsección: Sesión 2 -->
-                                <div id="menu-sess2" class="content-section">
-                                    <div class="back-btn" onclick="navigateTo('sessions')">[<] BACK TO SESSIONS</div>
-                                            <h2>AWSome Women Summit LATAM</h2>
-                                            <p>Conferencia magistral "De lo Clásico a lo Cuántico con AWS", demostrando
-                                                arquitecturas de optimización híbrida en la nube (también presentada en
-                                                oficinas de Clara).</p>
-                                    </div>
-
-                                    <!-- Subsección: Sesión 3 -->
-                                    <div id="menu-sess3" class="content-section">
-                                        <div class="back-btn" onclick="navigateTo('sessions')">[<] BACK TO
-                                                SESSIONS</div>
-                                                <h2>Community & Mentorship</h2>
-                                                <p>Speaker invitado en el reto de certificación CertOps del Student
-                                                    Builder Group UNAM y selección como mentora oficial en el bootcamp
-                                                    de builders de AWS.</p>
-                                        </div>
-                                        <!-- Contacto -->
-                                        <div id="menu-contact" class="content-section">
-                                            <div class="back-btn" onclick="navigateTo('home')">[x] RETURN</div>
-                                            <h2>LINK_TREE</h2>
-                                            <p>Let's connect and build the future of cloud & quantum.</p>
-                                            <div class="sub-item"><a href="https://github.com/Shel-y" target="_blank"
-                                                    class="contact-link">> GITHUB // Code</a></div>
-                                            <div class="sub-item"><a href="https://www.linkedin.com/in/joselyn-lagunas/"
-                                                    target="_blank" class="contact-link">> LINKEDIN // Connect</a></div>
-
-                                            <div class="sub-item"><a href="mailto:she.lagunas@gmail.com"
-                                                    class="contact-link">>
-                                                    EMAIL //
-                                                    Direct</a></div>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                <script type="importmap">
+    <script type="importmap">
         {
             "imports": {
                 "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
@@ -501,664 +1076,856 @@
             }
         }
     </script>
-                                <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
-
-                                <script type="module">
-                                    import * as THREE from 'three';
-                                    import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
-                                    import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-
-                                    let scene, camera, webglRenderer, cssRenderer, phoneGroup, charmGroup;
-                                    let collageItems = [];
-
-                                    // Raycaster para Hover
-                                    const raycaster = new THREE.Raycaster();
-                                    const mouse = new THREE.Vector2(-100, -100);
-                                    let hoveredMesh = null;
-
-                                    window.addEventListener('mousemove', (event) => {
-                                        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                                        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-                                    });
-                                    window.addEventListener('touchstart', (event) => {
-                                        if (event.touches.length > 0) {
-                                            mouse.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
-                                            mouse.y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
-                                        }
-                                    }, { passive: true });
-
-                                    const globalAssets = [
-                                        'img/asset_1.jpg', 'img/asset_10.jpg', 'img/asset_11.jpg', 'img/asset_12.jpg',
-                                        'img/asset_13.gif', 'img/asset_14.jpg', 'img/asset_2.jpg', 'img/asset_3.jpg',
-                                        'img/asset_4.jpg', 'img/asset_6.jpg', 'img/asset_7.jpg', 'img/asset_8.jpg',
-                                        'img/asset_9.jpg', 'img/demo.gif'
-                                    ];
-
-                                    // --- MAPEO DE IMÁGENES ESPECÍFICAS POR CADA SECCIÓN Y SUBSECCIÓN ---
-                                    // Aquí puedes enlazar carpetas o imágenes individuales exactas en tu estructura 'img/'
-                                    const sectionImages = {
-                                        home: ['img/home_1.jpg', 'img/home_2.jpg', 'img/home_3.jpg', 'img/home_4.jpg', 'img/home_5.jpg', 'img/home_6.jpg'],
-                                        about: ['img/about_1.jpg', 'img/about_2.jpg', 'img/about_3.jpg', 'img/about_4.jpg', 'img/about_5.jpg', 'img/about_6.jpg'],
-                                        projects: ['img/projects_1.jpg', 'img/projects_2.jpg', 'img/demo.gif'],
-                                        proj1: ['img/qdrift_1.jpg', 'img/qdrift_2.jpg'],     // Específico para Q-Drift CLI
-                                        proj2: ['img/neuro_1.jpg', 'img/neuro_2.jpg'],       // Específico para NeuroCopilot
-                                        sessions: ['img/sessions_1.jpg', 'img/sessions_2.jpg', 'img/sessions_3.jpg'],
-                                        sess1: ['img/aws_summit.jpg'],                      // Específico para AWSome Women
-                                        sess2: ['img/ieee_quantum.jpg'],                    // Específico para IEEE Quantum
-                                        contact: ['img/contact_1.jpg']
-                                    };
-
-                                    // --- SISTEMA DE AUDIO Y2K ---
-                                    const playlist = [
-                                        { title: "Ironic", artist: "Shel", src: "./audio/ironic.mp3" },
-                                        { title: "Lafant", artist: "Shel", src: "./audio/Lafant.mp3" },
-                                        { title: "Lil", artist: "Shel", src: "./audio/lil.mp3" },
-                                        { title: "Thinking", artist: "Shel", src: "./audio/thinking.mp3" },
-                                        { title: "TKOBH", artist: "Shel", src: "./audio/TKOBH.mp3" },
-                                        { title: "Vintage", artist: "Shel", src: "./audio/vintage.mp3" }
-                                    ];
-                                    let audio = new Audio();
-                                    audio.volume = 0.3;
-                                    let currentTrackIndex = Math.floor(Math.random() * playlist.length);
-                                    let isPlaying = false;
-
-                                    const trackTitleEl = document.getElementById('track-title');
-                                    const trackArtistEl = document.getElementById('track-artist');
-                                    const playBtn = document.getElementById('play-pause-btn');
-                                    const nextBtn = document.getElementById('next-btn');
-
-                                    function loadTrack(index) {
-                                        const track = playlist[index];
-                                        audio.src = track.src;
-                                        trackTitleEl.innerText = track.title;
-                                        trackArtistEl.innerText = track.artist;
-                                        if (isPlaying) audio.play();
-                                    }
-
-                                    playBtn.addEventListener('click', () => {
-                                        if (isPlaying) { audio.pause(); playBtn.innerText = "▶"; }
-                                        else { audio.play(); playBtn.innerText = "⏸"; }
-                                        isPlaying = !isPlaying;
-                                    });
-
-                                    nextBtn.addEventListener('click', () => {
-                                        currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-                                        loadTrack(currentTrackIndex);
-                                        if (!isPlaying) { audio.play(); playBtn.innerText = "⏸"; isPlaying = true; }
-                                    });
-                                    audio.addEventListener('ended', () => nextBtn.click());
-                                    loadTrack(currentTrackIndex);
-
-                                    // Auto-play on first interaction
-                                    let audioStarted = false;
-                                    const startAudio = () => {
-                                        if (!audioStarted) {
-                                            audio.play().catch(e => console.log(e));
-                                            playBtn.innerText = "⏸";
-                                            isPlaying = true;
-                                            audioStarted = true;
-                                            document.removeEventListener('click', startAudio);
-                                            document.removeEventListener('touchstart', startAudio);
-                                            document.removeEventListener('keydown', startAudio);
-                                        }
-                                    };
-                                    document.addEventListener('click', startAudio);
-                                    document.addEventListener('touchstart', startAudio);
-                                    document.addEventListener('keydown', startAudio);
-
-                                    // DTMF Sound Effect for keypad
-                                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                                    function playDtmfSound() {
-                                        if (audioCtx.state === 'suspended') audioCtx.resume();
-                                        const osc1 = audioCtx.createOscillator();
-                                        const osc2 = audioCtx.createOscillator();
-                                        const gainNode = audioCtx.createGain();
-
-                                        const freqs = [[697, 1209], [697, 1336], [697, 1477], [770, 1209], [770, 1336], [770, 1477]];
-                                        const f = freqs[Math.floor(Math.random() * freqs.length)];
-
-                                        osc1.frequency.value = f[0];
-                                        osc2.frequency.value = f[1];
-
-                                        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-                                        gainNode.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.01);
-                                        gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime + 0.08);
-                                        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
-
-                                        osc1.connect(gainNode);
-                                        osc2.connect(gainNode);
-                                        gainNode.connect(audioCtx.destination);
-
-                                        osc1.start(); osc2.start();
-                                        osc1.stop(audioCtx.currentTime + 0.1); osc2.stop(audioCtx.currentTime + 0.1);
-                                    }
-
-                                    // --- PÍXELES DE RASTRO Y2K ---
-                                    const canvas = document.getElementById('pixel-canvas');
-                                    const ctx = canvas.getContext('2d');
-                                    let particles = [];
-                                    const pixelColors = ['#ff66b2', '#b366ff', '#66ffff', '#ffffff', '#ff99cc'];
-
-                                    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-                                    window.addEventListener('resize', resizeCanvas); resizeCanvas();
-
-                                    function addPixel(x, y) {
-                                        for (let i = 0; i < 2; i++) {
-                                            particles.push({
-                                                x: x, y: y, size: Math.random() * 5 + 3,
-                                                color: pixelColors[Math.floor(Math.random() * pixelColors.length)],
-                                                life: 1, vx: (Math.random() - 0.5) * 1.5, vy: (Math.random() - 0.5) * 1.5
-                                            });
-                                        }
-                                    }
-                                    window.addEventListener('mousemove', (e) => addPixel(e.clientX, e.clientY));
-                                    window.addEventListener('touchmove', (e) => {
-                                        if (e.touches.length > 0) addPixel(e.touches[0].clientX, e.touches[0].clientY);
-                                    });
-
-                                    function animatePixels() {
-                                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                                        for (let i = particles.length - 1; i >= 0; i--) {
-                                            let p = particles[i];
-                                            p.x += p.vx; p.y += p.vy; p.life -= 0.025;
-                                            if (p.life <= 0) particles.splice(i, 1);
-                                            else {
-                                                ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
-                                                ctx.fillRect(p.x, p.y, p.size, p.size);
-                                            }
-                                        }
-                                        ctx.globalAlpha = 1;
-                                        requestAnimationFrame(animatePixels);
-                                    }
-                                    animatePixels();
-
-                                    // --- THREE.JS ---
-                                    init();
-                                    animate();
-
-                                    function init() {
-                                        scene = new THREE.Scene();
-                                        scene.fog = new THREE.FogExp2(0x050308, 0.035);
-
-                                        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-
-                                        webglRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-                                        webglRenderer.setSize(window.innerWidth, window.innerHeight);
-                                        webglRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-                                        webglRenderer.shadowMap.enabled = true;
-                                        webglRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
-                                        document.getElementById('webgl-container').appendChild(webglRenderer.domElement);
-
-                                        cssRenderer = new CSS3DRenderer();
-                                        cssRenderer.setSize(window.innerWidth, window.innerHeight);
-                                        document.getElementById('css3d-container').appendChild(cssRenderer.domElement);
-
-                                        const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
-                                        scene.add(ambientLight);
-
-                                        // Luz direccional principal con sombras de mayor resolución y alcance
-                                        const dirLight = new THREE.DirectionalLight(0xffb3d9, 3.5);
-                                        dirLight.position.set(5, 12, 12);
-                                        dirLight.castShadow = true;
-                                        dirLight.shadow.mapSize.width = 2048;
-                                        dirLight.shadow.mapSize.height = 2048;
-                                        dirLight.shadow.camera.near = 0.5;
-                                        dirLight.shadow.camera.far = 50;
-                                        dirLight.shadow.camera.left = -25;
-                                        dirLight.shadow.camera.right = 25;
-                                        dirLight.shadow.camera.top = 25;
-                                        dirLight.shadow.camera.bottom = -25;
-                                        dirLight.shadow.bias = -0.0005;
-                                        scene.add(dirLight);
-
-                                        // Luz de relleno fría
-                                        const pointLight = new THREE.PointLight(0x66ffff, 1.8, 30);
-                                        pointLight.position.set(-5, -5, 5);
-                                        scene.add(pointLight);
-
-                                        // Luz de acento trasera (backlight) para dar más volumen a las figuras
-                                        const backLight = new THREE.PointLight(0xff66b2, 3.0, 40);
-                                        backLight.position.set(0, 0, -10);
-                                        scene.add(backLight);
-
-                                        // Plano invisible en el fondo para que reciba las sombras proyectadas
-                                        const bgPlaneGeo = new THREE.PlaneGeometry(150, 150);
-                                        const bgPlaneMat = new THREE.ShadowMaterial({ opacity: 0.15 });
-                                        const bgPlane = new THREE.Mesh(bgPlaneGeo, bgPlaneMat);
-                                        bgPlane.position.z = -20;
-                                        bgPlane.receiveShadow = true;
-                                        scene.add(bgPlane);
-
-                                        // Cybercore 3D Grid Floor
-                                        const gridHelper = new THREE.GridHelper(100, 40, 0x00ffcc, 0xff66b2);
-                                        gridHelper.position.y = -12;
-                                        gridHelper.position.z = -10;
-                                        scene.add(gridHelper);
-
-                                        createCollageBackground('home');
-                                        createPhoneY2K();
-
-                                        adjustCameraForDevice();
-                                        window.addEventListener('resize', onWindowResize);
-
-                                        gsap.from(phoneGroup.position, { y: -20, duration: 2.5, ease: "power3.out" });
-                                        gsap.from(phoneGroup.rotation, { y: Math.PI * 2, x: 0.5, duration: 2.5, ease: "power3.out" });
-                                    }
-
-                                    function createLiquidMetalGeometry() {
-                                        const types = ['star', 'torus', 'gem', 'octahedron', 'heart', 'drop'];
-                                        const type = types[Math.floor(Math.random() * types.length)];
-
-                                        let geometry;
-                                        if (type === 'star') {
-                                            const shape = new THREE.Shape();
-                                            for (let i = 0; i < 10; i++) {
-                                                const r = i % 2 === 0 ? 2.0 : 0.8;
-                                                const a = (i / 10) * Math.PI * 2;
-                                                if (i === 0) shape.moveTo(Math.cos(a) * r, Math.sin(a) * r);
-                                                else shape.lineTo(Math.cos(a) * r, Math.sin(a) * r);
-                                            }
-                                            geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.4, bevelEnabled: true, bevelSize: 0.1, bevelThickness: 0.1 });
-                                        } else if (type === 'torus') {
-                                            geometry = new THREE.TorusKnotGeometry(1.2, 0.4, 64, 16);
-                                        } else if (type === 'gem') {
-                                            geometry = new THREE.OctahedronGeometry(1.5, 0);
-                                        } else if (type === 'octahedron') {
-                                            geometry = new THREE.IcosahedronGeometry(1.3, 0);
-                                        } else if (type === 'heart') {
-                                            const shape = new THREE.Shape();
-                                            shape.moveTo(0, 0.3);
-                                            shape.bezierCurveTo(0.3, 0.6, 1.2, 0.3, 0, -1.0);
-                                            shape.bezierCurveTo(-1.2, 0.3, -0.3, 0.6, 0, 0.3);
-                                            geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.3, bevelEnabled: true, bevelSegments: 3, steps: 2, bevelSize: 0.05, bevelThickness: 0.05 });
-                                        } else if (type === 'drop') {
-                                            const shape = new THREE.Shape();
-                                            shape.moveTo(0, 1.5);
-                                            shape.bezierCurveTo(0.8, -0.5, 0.8, -1.5, 0, -1.5);
-                                            shape.bezierCurveTo(-0.8, -1.5, -0.8, -0.5, 0, 1.5);
-                                            geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.4, bevelEnabled: true, bevelSize: 0.1, bevelThickness: 0.1 });
-                                        }
-
-                                        const colors = [0xffb3ba, 0xffdfba, 0xffffba, 0xbaffc9, 0xbae1ff, 0xe6b3ff, 0xcccccc];
-                                        const isCyber = Math.random() > 0.7;
-                                        const material = new THREE.MeshPhongMaterial({
-                                            color: isCyber ? 0x00ffcc : colors[Math.floor(Math.random() * colors.length)],
-                                            specular: 0xffffff,
-                                            shininess: 100,
-                                            reflectivity: 1,
-                                            wireframe: isCyber,
-                                            emissive: isCyber ? 0x003322 : 0x000000
-                                        });
-
-                                        const mesh = new THREE.Mesh(geometry, material);
-                                        mesh.userData.isY2KObject = true;
-                                        return mesh;
-                                    }
-
-                                    function getNonOverlappingPosition(boxes, w, h, scale, isPrimary, attempt = 0) {
-                                        let nz = isPrimary ? (-0.5 - Math.random() * 1.5) : (-2.5 - Math.random() * 2.5);
-
-                                        const ww = window.innerWidth;
-                                        const wh = window.innerHeight;
-                                        let cameraZ = 16;
-                                        if (ww <= 600) cameraZ = 24;
-                                        else if (ww <= 1024) cameraZ = 18;
-
-                                        const distance = cameraZ - nz;
-                                        const frustumHeight = 2 * distance * Math.tan((45 / 2) * (Math.PI / 180));
-                                        const frustumWidth = frustumHeight * (ww / wh);
-
-                                        const itemW = w * scale;
-                                        const itemH = h * scale;
-
-                                        let maxX = (frustumWidth / 2) - (itemW / 2) - 0.2;
-                                        let maxY = (frustumHeight / 2) - (itemH / 2) - 0.2;
-
-                                        const safeMaxX = Math.max(0, maxX);
-                                        const safeMaxY = Math.max(0, maxY);
-
-                                        if (attempt > 150) {
-                                            return {
-                                                x: (Math.random() - 0.5) * 2 * safeMaxX,
-                                                y: (Math.random() - 0.5) * 2 * safeMaxY,
-                                                z: nz
-                                            };
-                                        }
-
-                                        let nx = (Math.random() - 0.5) * 2 * safeMaxX;
-                                        let ny = (Math.random() - 0.5) * 2 * safeMaxY;
-
-                                        if (Math.abs(nx) < 4.5 && Math.abs(ny) < 6.0) {
-                                            return getNonOverlappingPosition(boxes, w, h, scale, isPrimary, attempt + 1);
-                                        }
-
-                                        let overlap = false;
-                                        for (let b of boxes) {
-                                            if (Math.abs(nx - b.x) < (itemW + b.w) / 2 * 0.85 &&
-                                                Math.abs(ny - b.y) < (itemH + b.h) / 2 * 0.85) {
-                                                overlap = true;
-                                                break;
-                                            }
-                                        }
-
-                                        if (overlap) {
-                                            return getNonOverlappingPosition(boxes, w, h, scale, isPrimary, attempt + 1);
-                                        }
-
-                                        return { x: nx, y: ny, z: nz };
-                                    }
-
-                                    function createCollageBackground(sectionKey) {
-                                        let placedBoxes = [];
-                                        collageItems.forEach(item => scene.remove(item));
-                                        collageItems = [];
-
-                                        const textureLoader = new THREE.TextureLoader();
-                                        const availableImages = sectionImages[sectionKey] || sectionImages['home'];
-
-                                        let uniqueAvailable = [...new Set(availableImages)];
-                                        let shuffledAssets = [...globalAssets].sort(() => Math.random() - 0.5);
-                                        shuffledAssets = shuffledAssets.filter(img => !uniqueAvailable.includes(img));
-                                        let mixedImages = [...uniqueAvailable, ...shuffledAssets];
-
-                                        let imageIndex = 0;
-                                        for (let i = 0; i < 22; i++) {
-                                            let mesh;
-                                            if (Math.random() > 0.8 || imageIndex >= mixedImages.length) {
-                                                mesh = createLiquidMetalGeometry();
-                                            } else {
-                                                const texUrl = mixedImages[imageIndex];
-                                                imageIndex++;
-                                                const isPrimary = uniqueAvailable.includes(texUrl);
-
-                                                const w = isPrimary ? (3.0 + Math.random() * 1.5) : (2.0 + Math.random() * 1.5);
-                                                const h = w * (0.7 + Math.random() * 0.5);
-                                                const geometry = new THREE.PlaneGeometry(w, h);
-
-                                                const material = new THREE.MeshStandardMaterial({
-                                                    color: 0xffffff,
-                                                    side: THREE.DoubleSide,
-                                                    roughness: 0.4,
-                                                    metalness: 0.1,
-                                                    emissive: 0x111111
-                                                });
-
-                                                textureLoader.load(texUrl,
-                                                    (tex) => {
-                                                        tex.colorSpace = THREE.SRGBColorSpace;
-                                                        material.map = tex;
-                                                        material.needsUpdate = true;
-                                                    }
-                                                );
-
-                                                mesh = new THREE.Mesh(geometry, material);
-                                                mesh.userData.isY2KObject = false;
-                                                mesh.userData.isPrimary = isPrimary;
-                                                mesh.userData.w = w;
-                                                mesh.userData.h = h;
-
-                                                // Add 3D objects as corners
-                                                const corners = [
-                                                    { x: -w / 2, y: h / 2 }, { x: w / 2, y: h / 2 },
-                                                    { x: -w / 2, y: -h / 2 }, { x: w / 2, y: -h / 2 }
-                                                ];
-                                                corners.forEach(corner => {
-                                                    if (Math.random() > 0.4) {
-                                                        const ornMesh = createLiquidMetalGeometry();
-                                                        ornMesh.scale.set(0.25, 0.25, 0.25);
-                                                        ornMesh.position.set(corner.x, corner.y, 0.1);
-                                                        mesh.add(ornMesh);
-                                                    }
-                                                });
-                                            }
-
-                                            mesh.receiveShadow = true;
-                                            mesh.castShadow = true;
-
-                                            randomizeMeshTransform(mesh, placedBoxes);
-                                            scene.add(mesh);
-                                            collageItems.push(mesh);
-                                        }
-                                    }
-
-                                    function updateCollageForSection(sectionKey) {
-                                        const textureLoader = new THREE.TextureLoader();
-                                        const availableImages = sectionImages[sectionKey] || sectionImages['home'];
-
-                                        let uniqueAvailable = [...new Set(availableImages)];
-                                        let shuffledAssets = [...globalAssets].sort(() => Math.random() - 0.5);
-                                        shuffledAssets = shuffledAssets.filter(img => !uniqueAvailable.includes(img));
-                                        let mixedImages = [...uniqueAvailable, ...shuffledAssets];
-
-                                        let imageIndex = 0;
-                                        let placedBoxes = [];
-                                        collageItems.forEach((mesh) => {
-                                            if (mesh.userData.isY2KObject) {
-                                                mesh.visible = true;
-                                                const nx = (Math.random() - 0.5) * 30;
-                                                const ny = (Math.random() - 0.5) * 20;
-                                                const nz = -4 - (Math.random() * 10);
-                                                const nScale = 0.6 + Math.random() * 1.4;
-                                                mesh.userData.originalScale = nScale;
-                                                gsap.to(mesh.position, { x: nx, y: ny, z: nz, duration: 1.6, ease: "power2.inOut" });
-                                                gsap.to(mesh.scale, { x: nScale, y: nScale, z: nScale, duration: 1.6, ease: "power2.inOut" });
-                                                gsap.to(mesh.rotation, { x: Math.random() * Math.PI * 2, y: Math.random() * Math.PI * 2, z: Math.random() * Math.PI * 2, duration: 1.6, ease: "power2.inOut" });
-                                            } else {
-                                                const texUrl = mixedImages[imageIndex];
-                                                if (!texUrl) {
-                                                    mesh.visible = false;
-                                                    return;
-                                                }
-                                                mesh.visible = true;
-                                                imageIndex++;
-                                                const isPrimary = uniqueAvailable.includes(texUrl);
-                                                mesh.userData.isPrimary = isPrimary;
-
-                                                const wMultiplier = (window.innerWidth <= 600) ? 0.5 : (window.innerWidth <= 1024 ? 0.75 : 1.0);
-                                                const nScale = (isPrimary ? (1.0 + Math.random() * 0.4) : (0.6 + Math.random() * 0.4)) * wMultiplier;
-                                                mesh.userData.originalScale = nScale;
-                                                const pos = getNonOverlappingPosition(placedBoxes, mesh.userData.w, mesh.userData.h, nScale, isPrimary);
-                                                placedBoxes.push({ x: pos.x, y: pos.y, w: mesh.userData.w * nScale, h: mesh.userData.h * nScale });
-
-                                                gsap.to(mesh.position, { x: pos.x, y: pos.y, z: pos.z, duration: 1.6, ease: "power2.inOut" });
-                                                gsap.to(mesh.scale, { x: nScale, y: nScale, z: nScale, duration: 1.6, ease: "power2.inOut" });
-
-                                                const rotZ = isPrimary ? 0 : ((Math.random() - 0.5) * 0.2);
-                                                gsap.to(mesh.rotation, { x: 0, y: 0, z: rotZ, duration: 1.6 });
-
-                                                textureLoader.load(texUrl, (tex) => {
-                                                    tex.colorSpace = THREE.SRGBColorSpace;
-                                                    mesh.material.map = tex;
-                                                    mesh.material.needsUpdate = true;
-                                                });
-                                            }
-                                        });
-                                    }
-
-                                    function randomizeMeshTransform(mesh, placedBoxes = []) {
-                                        if (mesh.userData.isY2KObject) {
-                                            mesh.position.set((Math.random() - 0.5) * 30, (Math.random() - 0.5) * 20, -4 - (Math.random() * 10));
-                                            const sc = 0.6 + Math.random() * 1.4;
-                                            mesh.userData.originalScale = sc;
-                                            mesh.scale.set(sc, sc, sc);
-                                            mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-                                        } else {
-                                            const isPrimary = mesh.userData.isPrimary;
-                                            const wMultiplier = (window.innerWidth <= 600) ? 0.5 : (window.innerWidth <= 1024 ? 0.75 : 1.0);
-                                            const sc = (isPrimary ? (1.0 + Math.random() * 0.4) : (0.6 + Math.random() * 0.4)) * wMultiplier;
-                                            mesh.userData.originalScale = sc;
-                                            const pos = getNonOverlappingPosition(placedBoxes, mesh.userData.w, mesh.userData.h, sc, isPrimary);
-                                            placedBoxes.push({ x: pos.x, y: pos.y, w: mesh.userData.w * sc, h: mesh.userData.h * sc });
-
-                                            mesh.position.set(pos.x, pos.y, pos.z);
-                                            mesh.scale.set(sc, sc, sc);
-                                            mesh.rotation.set(0, 0, isPrimary ? 0 : ((Math.random() - 0.5) * 0.2));
-                                        }
-                                    }
-
-                                    function createPhoneY2K() {
-                                        phoneGroup = new THREE.Group();
-                                        const bodyWidth = 4.1, bodyHeight = 8.2, bodyDepth = 0.45;
-
-                                        const chassisGeo = new RoundedBoxGeometry(bodyWidth, bodyHeight, bodyDepth, 8, 0.4);
-                                        const chassisMat = new THREE.MeshStandardMaterial({ color: 0xf0e6ff, roughness: 0.08, metalness: 1.0 });
-                                        const chassis = new THREE.Mesh(chassisGeo, chassisMat);
-                                        chassis.castShadow = true; chassis.receiveShadow = true;
-
-                                        const bezelGeo = new RoundedBoxGeometry(bodyWidth - 0.2, bodyHeight - 0.2, 0.1, 4, 0.2);
-                                        const bezelMat = new THREE.MeshStandardMaterial({ color: 0x050308, roughness: 0.1, metalness: 0.8 });
-                                        const bezel = new THREE.Mesh(bezelGeo, bezelMat);
-                                        bezel.position.z = (bodyDepth / 2);
-
-                                        phoneGroup.add(chassis);
-                                        phoneGroup.add(bezel);
-
-                                        const gemMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0, transmission: 0.9, thickness: 1.2, ior: 1.5 });
-                                        const heartGeo = new THREE.OctahedronGeometry(0.35, 0);
-                                        const heart1 = new THREE.Mesh(heartGeo, gemMat);
-                                        heart1.position.set(-1.3, 3.1, (bodyDepth / 2) + 0.08);
-                                        phoneGroup.add(heart1);
-
-                                        const starGeo = new THREE.ConeGeometry(0.3, 0.2, 5);
-                                        const star1 = new THREE.Mesh(starGeo, new THREE.MeshStandardMaterial({ color: 0xff99cc, metalness: 0.8, roughness: 0.2 }));
-                                        star1.position.set(1.3, 3.2, (bodyDepth / 2) + 0.08);
-                                        star1.rotation.x = Math.PI / 2;
-                                        phoneGroup.add(star1);
-
-                                        charmGroup = new THREE.Group();
-                                        charmGroup.position.set(bodyWidth / 2 - 0.1, -bodyHeight / 2 + 0.5, 0);
-
-                                        const beadMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.05, metalness: 0.9 });
-                                        const crystalBeadMat = new THREE.MeshPhysicalMaterial({ color: 0xffb3d9, roughness: 0, transmission: 0.9, thickness: 0.8 });
-
-                                        let prevY = 0;
-                                        for (let i = 0; i < 9; i++) {
-                                            const isCrystal = i % 2 === 0;
-                                            const bGeo = isCrystal ? new THREE.SphereGeometry(0.18, 16, 16) : new THREE.BoxGeometry(0.25, 0.25, 0.25);
-                                            const bMesh = new THREE.Mesh(bGeo, isCrystal ? crystalBeadMat : beadMat);
-                                            bMesh.position.set(Math.sin(i * 0.6) * 0.15, prevY - 0.35, Math.cos(i * 0.4) * 0.1);
-                                            prevY = bMesh.position.y;
-                                            charmGroup.add(bMesh);
-                                        }
-                                        phoneGroup.add(charmGroup);
-
-                                        const screenElement = document.getElementById('phone-screen');
-                                        document.getElementById('phone-ui').style.display = 'block';
-
-                                        const cssObject = new CSS3DObject(screenElement);
-                                        cssObject.scale.set(0.01, 0.01, 0.01);
-                                        cssObject.position.set(0, 0, (bodyDepth / 2) + 0.07);
-
-                                        phoneGroup.add(cssObject);
-                                        phoneGroup.position.z = 3;
-                                        scene.add(phoneGroup);
-                                    }
-
-                                    function adjustCameraForDevice() {
-                                        if (window.innerWidth <= 600) camera.position.z = 24;
-                                        else if (window.innerWidth <= 1024) camera.position.z = 18;
-                                        else camera.position.z = 16;
-                                    }
-
-                                    function onWindowResize() {
-                                        camera.aspect = window.innerWidth / window.innerHeight;
-                                        camera.updateProjectionMatrix();
-                                        webglRenderer.setSize(window.innerWidth, window.innerHeight);
-                                        cssRenderer.setSize(window.innerWidth, window.innerHeight);
-                                        adjustCameraForDevice();
-                                    }
-
-                                    function animate() {
-                                        requestAnimationFrame(animate);
-                                        const time = Date.now() * 0.001;
-
-                                        if (phoneGroup) {
-                                            phoneGroup.position.y = Math.sin(time) * 0.12;
-                                            if (charmGroup) charmGroup.rotation.z = Math.sin(time * 2) * 0.15;
-                                        }
-
-                                        collageItems.forEach((mesh, i) => {
-                                            mesh.position.y += Math.sin(time + i) * 0.002;
-                                            if (mesh.userData.isY2KObject) {
-                                                mesh.rotation.x += 0.005;
-                                                mesh.rotation.y += 0.008;
-                                            }
-                                        });
-
-                                        raycaster.setFromCamera(mouse, camera);
-                                        const intersects = raycaster.intersectObjects(collageItems);
-
-                                        if (intersects.length > 0) {
-                                            const object = intersects[0].object;
-                                            if (hoveredMesh !== object) {
-                                                if (hoveredMesh) {
-                                                    gsap.to(hoveredMesh.scale, {
-                                                        x: hoveredMesh.userData.originalScale,
-                                                        y: hoveredMesh.userData.originalScale,
-                                                        z: hoveredMesh.userData.originalScale,
-                                                        duration: 0.3
-                                                    });
-                                                    hoveredMesh.material.emissive.setHex(hoveredMesh.userData.originalEmissive || 0x000000);
-                                                }
-                                                hoveredMesh = object;
-                                                document.body.style.cursor = 'crosshair';
-
-                                                if (!hoveredMesh.userData.originalScale) hoveredMesh.userData.originalScale = hoveredMesh.scale.x;
-                                                if (hoveredMesh.userData.originalEmissive === undefined) hoveredMesh.userData.originalEmissive = hoveredMesh.material.emissive.getHex();
-
-                                                gsap.to(hoveredMesh.scale, {
-                                                    x: hoveredMesh.userData.originalScale * 1.15,
-                                                    y: hoveredMesh.userData.originalScale * 1.15,
-                                                    z: hoveredMesh.userData.originalScale * 1.15,
-                                                    duration: 0.4,
-                                                    ease: "back.out(2)"
-                                                });
-
-                                                if (hoveredMesh.userData.isY2KObject) {
-                                                    hoveredMesh.material.emissive.setHex(0xff66b2);
-                                                } else {
-                                                    hoveredMesh.material.emissive.setHex(0x003333);
-                                                }
-                                            }
-                                        } else {
-                                            if (hoveredMesh) {
-                                                gsap.to(hoveredMesh.scale, {
-                                                    x: hoveredMesh.userData.originalScale,
-                                                    y: hoveredMesh.userData.originalScale,
-                                                    z: hoveredMesh.userData.originalScale,
-                                                    duration: 0.3
-                                                });
-                                                hoveredMesh.material.emissive.setHex(hoveredMesh.userData.originalEmissive || 0x000000);
-                                                hoveredMesh = null;
-                                                document.body.style.cursor = 'default';
-                                            }
-                                        }
-
-                                        webglRenderer.render(scene, camera);
-                                        cssRenderer.render(scene, camera);
-                                    }
-
-                                    // Navegación conectada a cada sección y subsección (incluyendo proj1, proj2, sess1, sess2)
-                                    window.navigateTo = function (sectionId) {
-                                        playDtmfSound();
-
-                                        const sections = document.querySelectorAll('.content-section');
-                                        sections.forEach(sec => sec.classList.remove('active'));
-
-                                        const activeSection = document.getElementById('menu-' + sectionId);
-                                        if (activeSection) {
-                                            activeSection.classList.add('active');
-                                            document.getElementById('phone-screen').scrollTop = 0;
-                                        }
-
-                                        // Cambia dinámicamente las imágenes según la subsección exacta seleccionada
-                                        updateCollageForSection(sectionId);
-
-                                        gsap.timeline()
-                                            .to(phoneGroup.rotation, { z: -0.05, duration: 0.1 })
-                                            .to(phoneGroup.rotation, { z: 0, duration: 0.3, ease: "back.out(2)" });
-                                    };
-                                </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
+        import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // ============================================================
+        // SHARED: audio player, DTMF, pixel trail, mode switching
+        // ============================================================
+        const playlist = [
+            { title: "Ironic", artist: "Shel", src: "./audio/ironic.mp3" },
+            { title: "Lafant", artist: "Shel", src: "./audio/Lafant.mp3" },
+            { title: "Lil", artist: "Shel", src: "./audio/lil.mp3" },
+            { title: "Thinking", artist: "Shel", src: "./audio/thinking.mp3" },
+            { title: "TKOBH", artist: "Shel", src: "./audio/TKOBH.mp3" },
+            { title: "Vintage", artist: "Shel", src: "./audio/vintage.mp3" }
+        ];
+        const audio = new Audio();
+        audio.volume = 0.3;
+        let currentTrackIndex = Math.floor(Math.random() * playlist.length);
+        let isPlaying = false;
+
+        const trackTitleEl = document.getElementById('track-title');
+        const trackArtistEl = document.getElementById('track-artist');
+        const playBtn = document.getElementById('play-pause-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        function loadTrack(index) {
+            const track = playlist[index];
+            audio.src = track.src;
+            trackTitleEl.innerText = track.title;
+            trackArtistEl.innerText = track.artist;
+            if (isPlaying) audio.play().catch(() => { });
+        }
+
+        audio.addEventListener('error', () => {
+            trackTitleEl.innerText = 'Audio unavailable';
+            trackArtistEl.innerText = '—';
+        });
+
+        playBtn.addEventListener('click', () => {
+            if (isPlaying) { audio.pause(); playBtn.innerText = "▶"; }
+            else { audio.play().catch(() => { }); playBtn.innerText = "⏸"; }
+            isPlaying = !isPlaying;
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+            loadTrack(currentTrackIndex);
+            if (!isPlaying) { audio.play().catch(() => { }); playBtn.innerText = "⏸"; isPlaying = true; }
+        });
+        audio.addEventListener('ended', () => nextBtn.click());
+        loadTrack(currentTrackIndex);
+
+        // Autoplay on first interaction (unchanged behaviour, kept for both modes)
+        let audioStarted = false;
+        const startAudio = () => {
+            if (!audioStarted) {
+                audio.play().catch(() => { });
+                playBtn.innerText = "⏸";
+                isPlaying = true;
+                audioStarted = true;
+                document.removeEventListener('click', startAudio);
+                document.removeEventListener('touchstart', startAudio);
+                document.removeEventListener('keydown', startAudio);
+            }
+        };
+        document.addEventListener('click', startAudio);
+        document.addEventListener('touchstart', startAudio);
+        document.addEventListener('keydown', startAudio);
+
+        // DTMF sound effect — AudioContext is now created lazily on first
+        // gesture instead of at module load. Creating it eagerly can be
+        // blocked/left "suspended" by autoplay policies and, in some
+        // Firefox builds, throws before any user gesture has happened.
+        let audioCtx = null;
+        function getAudioCtx() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            return audioCtx;
+        }
+        function playDtmfSound() {
+            if (prefersReducedMotion) return;
+            const ctx = getAudioCtx();
+            if (ctx.state === 'suspended') ctx.resume();
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+
+            const freqs = [[697, 1209], [697, 1336], [697, 1477], [770, 1209], [770, 1336], [770, 1477]];
+            const f = freqs[Math.floor(Math.random() * freqs.length)];
+
+            osc1.frequency.value = f[0];
+            osc2.frequency.value = f[1];
+
+            gainNode.gain.setValueAtTime(0, ctx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.01);
+            gainNode.gain.setValueAtTime(0.15, ctx.currentTime + 0.08);
+            gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.1);
+
+            osc1.connect(gainNode);
+            osc2.connect(gainNode);
+            gainNode.connect(ctx.destination);
+
+            osc1.start(); osc2.start();
+            osc1.stop(ctx.currentTime + 0.1); osc2.stop(ctx.currentTime + 0.1);
+        }
+
+        // Pixel trail (kept global — cheap, and now also decorates classic mode)
+        const trailCanvas = document.getElementById('pixel-canvas');
+        const trailCtx = trailCanvas.getContext('2d');
+        let particles = [];
+        const pixelColors = ['#ff66b2', '#b366ff', '#66ffff', '#ffffff', '#ff99cc'];
+
+        function resizeTrailCanvas() { trailCanvas.width = window.innerWidth; trailCanvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeTrailCanvas);
+        resizeTrailCanvas();
+
+        function addPixel(x, y) {
+            if (prefersReducedMotion) return;
+            for (let i = 0; i < 2; i++) {
+                particles.push({
+                    x, y, size: Math.random() * 5 + 3,
+                    color: pixelColors[Math.floor(Math.random() * pixelColors.length)],
+                    life: 1, vx: (Math.random() - 0.5) * 1.5, vy: (Math.random() - 0.5) * 1.5
+                });
+            }
+        }
+        window.addEventListener('mousemove', (e) => addPixel(e.clientX, e.clientY));
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) addPixel(e.touches[0].clientX, e.touches[0].clientY);
+        });
+
+        function animatePixels() {
+            trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy; p.life -= 0.025;
+                if (p.life <= 0) particles.splice(i, 1);
+                else {
+                    trailCtx.fillStyle = p.color; trailCtx.globalAlpha = p.life;
+                    trailCtx.fillRect(p.x, p.y, p.size, p.size);
+                }
+            }
+            trailCtx.globalAlpha = 1;
+            requestAnimationFrame(animatePixels);
+        }
+        animatePixels();
+
+        // ============================================================
+        // 3D PHONE MODE
+        // ============================================================
+        let scene, camera, webglRenderer, cssRenderer, phoneGroup, charmGroup;
+        let collageItems = [];
+        let mode3dRunning = false;
+        let mode3dInitialized = false;
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2(-100, -100);
+        let hoveredMesh = null;
+
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+        window.addEventListener('touchstart', (event) => {
+            if (event.touches.length > 0) {
+                mouse.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
+            }
+        }, { passive: true });
+
+        const globalAssets = [
+            'img/asset_1.jpg', 'img/asset_10.jpg', 'img/asset_11.jpg', 'img/asset_12.jpg',
+            'img/asset_13.gif', 'img/asset_14.jpg', 'img/asset_2.jpg', 'img/asset_3.jpg',
+            'img/asset_4.jpg', 'img/asset_6.jpg', 'img/asset_7.jpg', 'img/asset_8.jpg',
+            'img/asset_9.jpg', 'img/demo.gif'
+        ];
+
+        const sectionImages = {
+            home: ['img/home_1.jpg', 'img/home_2.jpg', 'img/home_3.jpg', 'img/home_4.jpg', 'img/home_5.jpg', 'img/home_6.jpg'],
+            about: ['img/about_1.jpg', 'img/about_2.jpg', 'img/about_3.jpg', 'img/about_4.jpg', 'img/about_5.jpg', 'img/about_6.jpg'],
+            projects: ['img/projects_1.jpg', 'img/projects_2.jpg', 'img/demo.gif'],
+            proj1: ['img/qdrift_1.jpg', 'img/qdrift_2.jpg'],
+            proj2: ['img/neuro_1.jpg', 'img/neuro_2.jpg'],
+            sessions: ['img/sessions_1.jpg', 'img/sessions_2.jpg', 'img/sessions_3.jpg'],
+            sess1: ['img/aws_summit.jpg'],
+            sess2: ['img/ieee_quantum.jpg'],
+            contact: ['img/contact_1.jpg']
+        };
+
+        const textureLoader = new THREE.TextureLoader();
+        // Fallback so a missing/broken image doesn't leave a mesh with no
+        // material update pending forever — it now just tints the plane
+        // instead of erroring out silently.
+        function loadTextureSafe(url, onLoad) {
+            textureLoader.load(url, onLoad, undefined, () => { /* swallow — mesh keeps its base color */ });
+        }
+
+        function initMode3D() {
+            if (mode3dInitialized) return;
+            mode3dInitialized = true;
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x050308, 0.035);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+
+            webglRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            webglRenderer.setSize(window.innerWidth, window.innerHeight);
+            webglRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            webglRenderer.shadowMap.enabled = true;
+            webglRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('webgl-container').appendChild(webglRenderer.domElement);
+
+            cssRenderer = new CSS3DRenderer();
+            cssRenderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('css3d-container').appendChild(cssRenderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffb3d9, 3.5);
+            dirLight.position.set(5, 12, 12);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            dirLight.shadow.camera.near = 0.5;
+            dirLight.shadow.camera.far = 50;
+            dirLight.shadow.camera.left = -25;
+            dirLight.shadow.camera.right = 25;
+            dirLight.shadow.camera.top = 25;
+            dirLight.shadow.camera.bottom = -25;
+            dirLight.shadow.bias = -0.0005;
+            scene.add(dirLight);
+
+            const pointLight = new THREE.PointLight(0x66ffff, 1.8, 30);
+            pointLight.position.set(-5, -5, 5);
+            scene.add(pointLight);
+
+            const backLight = new THREE.PointLight(0xff66b2, 3.0, 40);
+            backLight.position.set(0, 0, -10);
+            scene.add(backLight);
+
+            const bgPlaneGeo = new THREE.PlaneGeometry(150, 150);
+            const bgPlaneMat = new THREE.ShadowMaterial({ opacity: 0.15 });
+            const bgPlane = new THREE.Mesh(bgPlaneGeo, bgPlaneMat);
+            bgPlane.position.z = -20;
+            bgPlane.receiveShadow = true;
+            scene.add(bgPlane);
+
+            const gridHelper = new THREE.GridHelper(100, 40, 0x00ffcc, 0xff66b2);
+            gridHelper.position.y = -12;
+            gridHelper.position.z = -10;
+            scene.add(gridHelper);
+
+            createCollageBackground('home');
+            createPhoneY2K();
+
+            adjustCameraForDevice();
+
+            if (!prefersReducedMotion) {
+                gsap.from(phoneGroup.position, { y: -20, duration: 2.5, ease: "power3.out" });
+                gsap.from(phoneGroup.rotation, { y: Math.PI * 2, x: 0.5, duration: 2.5, ease: "power3.out" });
+            }
+        }
+
+        function createLiquidMetalGeometry() {
+            const types = ['star', 'torus', 'gem', 'octahedron', 'heart', 'drop'];
+            const type = types[Math.floor(Math.random() * types.length)];
+
+            let geometry;
+            if (type === 'star') {
+                const shape = new THREE.Shape();
+                for (let i = 0; i < 10; i++) {
+                    const r = i % 2 === 0 ? 2.0 : 0.8;
+                    const a = (i / 10) * Math.PI * 2;
+                    if (i === 0) shape.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+                    else shape.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+                }
+                geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.4, bevelEnabled: true, bevelSize: 0.1, bevelThickness: 0.1 });
+            } else if (type === 'torus') {
+                geometry = new THREE.TorusKnotGeometry(1.2, 0.4, 64, 16);
+            } else if (type === 'gem') {
+                geometry = new THREE.OctahedronGeometry(1.5, 0);
+            } else if (type === 'octahedron') {
+                geometry = new THREE.IcosahedronGeometry(1.3, 0);
+            } else if (type === 'heart') {
+                const shape = new THREE.Shape();
+                shape.moveTo(0, 0.3);
+                shape.bezierCurveTo(0.3, 0.6, 1.2, 0.3, 0, -1.0);
+                shape.bezierCurveTo(-1.2, 0.3, -0.3, 0.6, 0, 0.3);
+                geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.3, bevelEnabled: true, bevelSegments: 3, steps: 2, bevelSize: 0.05, bevelThickness: 0.05 });
+            } else if (type === 'drop') {
+                const shape = new THREE.Shape();
+                shape.moveTo(0, 1.5);
+                shape.bezierCurveTo(0.8, -0.5, 0.8, -1.5, 0, -1.5);
+                shape.bezierCurveTo(-0.8, -1.5, -0.8, -0.5, 0, 1.5);
+                geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.4, bevelEnabled: true, bevelSize: 0.1, bevelThickness: 0.1 });
+            }
+
+            const colors = [0xffb3ba, 0xffdfba, 0xffffba, 0xbaffc9, 0xbae1ff, 0xe6b3ff, 0xcccccc];
+            const isCyber = Math.random() > 0.7;
+            const material = new THREE.MeshPhongMaterial({
+                color: isCyber ? 0x00ffcc : colors[Math.floor(Math.random() * colors.length)],
+                specular: 0xffffff,
+                shininess: 100,
+                reflectivity: 1,
+                wireframe: isCyber,
+                emissive: isCyber ? 0x003322 : 0x000000
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.userData.isY2KObject = true;
+            return mesh;
+        }
+
+        function getNonOverlappingPosition(boxes, w, h, scale, isPrimary, attempt = 0) {
+            let nz = isPrimary ? (-0.5 - Math.random() * 1.5) : (-2.5 - Math.random() * 2.5);
+
+            const ww = window.innerWidth;
+            const wh = window.innerHeight;
+            let cameraZ = 16;
+            if (ww <= 600) cameraZ = 24;
+            else if (ww <= 1024) cameraZ = 18;
+
+            const distance = cameraZ - nz;
+            const frustumHeight = 2 * distance * Math.tan((45 / 2) * (Math.PI / 180));
+            const frustumWidth = frustumHeight * (ww / wh);
+
+            const itemW = w * scale;
+            const itemH = h * scale;
+
+            let maxX = (frustumWidth / 2) - (itemW / 2) - 0.2;
+            let maxY = (frustumHeight / 2) - (itemH / 2) - 0.2;
+
+            const safeMaxX = Math.max(0, maxX);
+            const safeMaxY = Math.max(0, maxY);
+
+            if (attempt > 150) {
+                return {
+                    x: (Math.random() - 0.5) * 2 * safeMaxX,
+                    y: (Math.random() - 0.5) * 2 * safeMaxY,
+                    z: nz
+                };
+            }
+
+            let nx = (Math.random() - 0.5) * 2 * safeMaxX;
+            let ny = (Math.random() - 0.5) * 2 * safeMaxY;
+
+            if (Math.abs(nx) < 4.5 && Math.abs(ny) < 6.0) {
+                return getNonOverlappingPosition(boxes, w, h, scale, isPrimary, attempt + 1);
+            }
+
+            let overlap = false;
+            for (let b of boxes) {
+                if (Math.abs(nx - b.x) < (itemW + b.w) / 2 * 0.85 &&
+                    Math.abs(ny - b.y) < (itemH + b.h) / 2 * 0.85) {
+                    overlap = true;
+                    break;
+                }
+            }
+
+            if (overlap) {
+                return getNonOverlappingPosition(boxes, w, h, scale, isPrimary, attempt + 1);
+            }
+
+            return { x: nx, y: ny, z: nz };
+        }
+
+        function createCollageBackground(sectionKey) {
+            let placedBoxes = [];
+            collageItems.forEach(item => scene.remove(item));
+            collageItems = [];
+
+            const availableImages = sectionImages[sectionKey] || sectionImages['home'];
+
+            let uniqueAvailable = [...new Set(availableImages)];
+            let shuffledAssets = [...globalAssets].sort(() => Math.random() - 0.5);
+            shuffledAssets = shuffledAssets.filter(img => !uniqueAvailable.includes(img));
+            let mixedImages = [...uniqueAvailable, ...shuffledAssets];
+
+            let imageIndex = 0;
+            for (let i = 0; i < 22; i++) {
+                let mesh;
+                if (Math.random() > 0.8 || imageIndex >= mixedImages.length) {
+                    mesh = createLiquidMetalGeometry();
+                } else {
+                    const texUrl = mixedImages[imageIndex];
+                    imageIndex++;
+                    const isPrimary = uniqueAvailable.includes(texUrl);
+
+                    const w = isPrimary ? (3.0 + Math.random() * 1.5) : (2.0 + Math.random() * 1.5);
+                    const h = w * (0.7 + Math.random() * 0.5);
+                    const geometry = new THREE.PlaneGeometry(w, h);
+
+                    const material = new THREE.MeshStandardMaterial({
+                        color: 0xffffff,
+                        side: THREE.DoubleSide,
+                        roughness: 0.4,
+                        metalness: 0.1,
+                        emissive: 0x111111,
+                        transparent: false
+                    });
+
+                    loadTextureSafe(texUrl, (tex) => {
+                        tex.colorSpace = THREE.SRGBColorSpace;
+                        material.map = tex;
+                        material.needsUpdate = true;
+                    });
+
+                    mesh = new THREE.Mesh(geometry, material);
+                    mesh.userData.isY2KObject = false;
+                    mesh.userData.isPrimary = isPrimary;
+                    mesh.userData.w = w;
+                    mesh.userData.h = h;
+
+                    const corners = [
+                        { x: -w / 2, y: h / 2 }, { x: w / 2, y: h / 2 },
+                        { x: -w / 2, y: -h / 2 }, { x: w / 2, y: -h / 2 }
+                    ];
+                    corners.forEach(corner => {
+                        if (Math.random() > 0.4) {
+                            const ornMesh = createLiquidMetalGeometry();
+                            ornMesh.scale.set(0.25, 0.25, 0.25);
+                            ornMesh.position.set(corner.x, corner.y, 0.1);
+                            mesh.add(ornMesh);
+                        }
+                    });
+                }
+
+                mesh.receiveShadow = true;
+                mesh.castShadow = true;
+
+                randomizeMeshTransform(mesh, placedBoxes);
+                scene.add(mesh);
+                collageItems.push(mesh);
+            }
+        }
+
+        function updateCollageForSection(sectionKey) {
+            const availableImages = sectionImages[sectionKey] || sectionImages['home'];
+
+            let uniqueAvailable = [...new Set(availableImages)];
+            let shuffledAssets = [...globalAssets].sort(() => Math.random() - 0.5);
+            shuffledAssets = shuffledAssets.filter(img => !uniqueAvailable.includes(img));
+            let mixedImages = [...uniqueAvailable, ...shuffledAssets];
+
+            let imageIndex = 0;
+            let placedBoxes = [];
+            collageItems.forEach((mesh) => {
+                if (mesh.userData.isY2KObject) {
+                    mesh.visible = true;
+                    const nx = (Math.random() - 0.5) * 30;
+                    const ny = (Math.random() - 0.5) * 20;
+                    const nz = -4 - (Math.random() * 10);
+                    const nScale = 0.6 + Math.random() * 1.4;
+                    mesh.userData.originalScale = nScale;
+                    const dur = prefersReducedMotion ? 0 : 1.6;
+                    gsap.to(mesh.position, { x: nx, y: ny, z: nz, duration: dur, ease: "power2.inOut" });
+                    gsap.to(mesh.scale, { x: nScale, y: nScale, z: nScale, duration: dur, ease: "power2.inOut" });
+                    gsap.to(mesh.rotation, { x: Math.random() * Math.PI * 2, y: Math.random() * Math.PI * 2, z: Math.random() * Math.PI * 2, duration: dur, ease: "power2.inOut" });
+                } else {
+                    const texUrl = mixedImages[imageIndex];
+                    if (!texUrl) {
+                        mesh.visible = false;
+                        return;
+                    }
+                    mesh.visible = true;
+                    imageIndex++;
+                    const isPrimary = uniqueAvailable.includes(texUrl);
+                    mesh.userData.isPrimary = isPrimary;
+
+                    const wMultiplier = (window.innerWidth <= 600) ? 0.5 : (window.innerWidth <= 1024 ? 0.75 : 1.0);
+                    const nScale = (isPrimary ? (1.0 + Math.random() * 0.4) : (0.6 + Math.random() * 0.4)) * wMultiplier;
+                    mesh.userData.originalScale = nScale;
+                    const pos = getNonOverlappingPosition(placedBoxes, mesh.userData.w, mesh.userData.h, nScale, isPrimary);
+                    placedBoxes.push({ x: pos.x, y: pos.y, w: mesh.userData.w * nScale, h: mesh.userData.h * nScale });
+
+                    const dur = prefersReducedMotion ? 0 : 1.6;
+                    gsap.to(mesh.position, { x: pos.x, y: pos.y, z: pos.z, duration: dur, ease: "power2.inOut" });
+                    gsap.to(mesh.scale, { x: nScale, y: nScale, z: nScale, duration: dur, ease: "power2.inOut" });
+
+                    const rotZ = isPrimary ? 0 : ((Math.random() - 0.5) * 0.2);
+                    gsap.to(mesh.rotation, { x: 0, y: 0, z: rotZ, duration: dur });
+
+                    loadTextureSafe(texUrl, (tex) => {
+                        tex.colorSpace = THREE.SRGBColorSpace;
+                        mesh.material.map = tex;
+                        mesh.material.needsUpdate = true;
+                    });
+                }
+            });
+        }
+
+        function randomizeMeshTransform(mesh, placedBoxes = []) {
+            if (mesh.userData.isY2KObject) {
+                mesh.position.set((Math.random() - 0.5) * 30, (Math.random() - 0.5) * 20, -4 - (Math.random() * 10));
+                const sc = 0.6 + Math.random() * 1.4;
+                mesh.userData.originalScale = sc;
+                mesh.scale.set(sc, sc, sc);
+                mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+            } else {
+                const isPrimary = mesh.userData.isPrimary;
+                const wMultiplier = (window.innerWidth <= 600) ? 0.5 : (window.innerWidth <= 1024 ? 0.75 : 1.0);
+                const sc = (isPrimary ? (1.0 + Math.random() * 0.4) : (0.6 + Math.random() * 0.4)) * wMultiplier;
+                mesh.userData.originalScale = sc;
+                const pos = getNonOverlappingPosition(placedBoxes, mesh.userData.w, mesh.userData.h, sc, isPrimary);
+                placedBoxes.push({ x: pos.x, y: pos.y, w: mesh.userData.w * sc, h: mesh.userData.h * sc });
+
+                mesh.position.set(pos.x, pos.y, pos.z);
+                mesh.scale.set(sc, sc, sc);
+                mesh.rotation.set(0, 0, isPrimary ? 0 : ((Math.random() - 0.5) * 0.2));
+            }
+        }
+
+        function createPhoneY2K() {
+            phoneGroup = new THREE.Group();
+            const bodyWidth = 4.1, bodyHeight = 8.2, bodyDepth = 0.45;
+
+            const chassisGeo = new RoundedBoxGeometry(bodyWidth, bodyHeight, bodyDepth, 8, 0.4);
+            const chassisMat = new THREE.MeshStandardMaterial({ color: 0xf0e6ff, roughness: 0.08, metalness: 1.0 });
+            const chassis = new THREE.Mesh(chassisGeo, chassisMat);
+            chassis.castShadow = true; chassis.receiveShadow = true;
+
+            const bezelGeo = new RoundedBoxGeometry(bodyWidth - 0.2, bodyHeight - 0.2, 0.1, 4, 0.2);
+            const bezelMat = new THREE.MeshStandardMaterial({ color: 0x050308, roughness: 0.1, metalness: 0.8 });
+            const bezel = new THREE.Mesh(bezelGeo, bezelMat);
+            bezel.position.z = (bodyDepth / 2);
+
+            phoneGroup.add(chassis);
+            phoneGroup.add(bezel);
+
+            const gemMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0, transmission: 0.9, thickness: 1.2, ior: 1.5 });
+            const heartGeo = new THREE.OctahedronGeometry(0.35, 0);
+            const heart1 = new THREE.Mesh(heartGeo, gemMat);
+            heart1.position.set(-1.3, 3.1, (bodyDepth / 2) + 0.08);
+            phoneGroup.add(heart1);
+
+            const starGeo = new THREE.ConeGeometry(0.3, 0.2, 5);
+            const star1 = new THREE.Mesh(starGeo, new THREE.MeshStandardMaterial({ color: 0xff99cc, metalness: 0.8, roughness: 0.2 }));
+            star1.position.set(1.3, 3.2, (bodyDepth / 2) + 0.08);
+            star1.rotation.x = Math.PI / 2;
+            phoneGroup.add(star1);
+
+            charmGroup = new THREE.Group();
+            charmGroup.position.set(bodyWidth / 2 - 0.1, -bodyHeight / 2 + 0.5, 0);
+
+            const beadMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.05, metalness: 0.9 });
+            const crystalBeadMat = new THREE.MeshPhysicalMaterial({ color: 0xffb3d9, roughness: 0, transmission: 0.9, thickness: 0.8 });
+
+            let prevY = 0;
+            for (let i = 0; i < 9; i++) {
+                const isCrystal = i % 2 === 0;
+                const bGeo = isCrystal ? new THREE.SphereGeometry(0.18, 16, 16) : new THREE.BoxGeometry(0.25, 0.25, 0.25);
+                const bMesh = new THREE.Mesh(bGeo, isCrystal ? crystalBeadMat : beadMat);
+                bMesh.position.set(Math.sin(i * 0.6) * 0.15, prevY - 0.35, Math.cos(i * 0.4) * 0.1);
+                prevY = bMesh.position.y;
+                charmGroup.add(bMesh);
+            }
+            phoneGroup.add(charmGroup);
+
+            document.getElementById('phone-ui').style.display = 'block';
+            const screenElement = document.getElementById('phone-screen');
+
+            const cssObject = new CSS3DObject(screenElement);
+            cssObject.scale.set(0.01, 0.01, 0.01);
+            cssObject.position.set(0, 0, (bodyDepth / 2) + 0.05);
+
+            phoneGroup.add(cssObject);
+            phoneGroup.position.z = 3;
+            scene.add(phoneGroup);
+        }
+
+        function adjustCameraForDevice() {
+            if (!camera) return;
+            if (window.innerWidth <= 600) camera.position.z = 24;
+            else if (window.innerWidth <= 1024) camera.position.z = 18;
+            else camera.position.z = 16;
+        }
+
+        function onWindowResize3D() {
+            if (!mode3dInitialized) return;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            webglRenderer.setSize(window.innerWidth, window.innerHeight);
+            cssRenderer.setSize(window.innerWidth, window.innerHeight);
+            adjustCameraForDevice();
+        }
+        window.addEventListener('resize', onWindowResize3D);
+
+        function animate3D() {
+            if (!mode3dRunning) return;
+            requestAnimationFrame(animate3D);
+            const time = Date.now() * 0.001;
+
+            if (phoneGroup && !prefersReducedMotion) {
+                phoneGroup.position.y = Math.sin(time) * 0.12;
+                if (charmGroup) charmGroup.rotation.z = Math.sin(time * 2) * 0.15;
+            }
+
+            if (!prefersReducedMotion) {
+                collageItems.forEach((mesh, i) => {
+                    mesh.position.y += Math.sin(time + i) * 0.002;
+                    if (mesh.userData.isY2KObject) {
+                        mesh.rotation.x += 0.005;
+                        mesh.rotation.y += 0.008;
+                    }
+                });
+            }
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(collageItems);
+
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+                if (hoveredMesh !== object) {
+                    if (hoveredMesh) {
+                        gsap.to(hoveredMesh.scale, {
+                            x: hoveredMesh.userData.originalScale,
+                            y: hoveredMesh.userData.originalScale,
+                            z: hoveredMesh.userData.originalScale,
+                            duration: 0.3
+                        });
+                        hoveredMesh.material.emissive.setHex(hoveredMesh.userData.originalEmissive || 0x000000);
+                    }
+                    hoveredMesh = object;
+                    document.body.style.cursor = 'crosshair';
+
+                    if (!hoveredMesh.userData.originalScale) hoveredMesh.userData.originalScale = hoveredMesh.scale.x;
+                    if (hoveredMesh.userData.originalEmissive === undefined) hoveredMesh.userData.originalEmissive = hoveredMesh.material.emissive.getHex();
+
+                    gsap.to(hoveredMesh.scale, {
+                        x: hoveredMesh.userData.originalScale * 1.15,
+                        y: hoveredMesh.userData.originalScale * 1.15,
+                        z: hoveredMesh.userData.originalScale * 1.15,
+                        duration: 0.4,
+                        ease: "back.out(2)"
+                    });
+
+                    if (hoveredMesh.userData.isY2KObject) {
+                        hoveredMesh.material.emissive.setHex(0xff66b2);
+                    } else {
+                        hoveredMesh.material.emissive.setHex(0x003333);
+                    }
+                }
+            } else {
+                if (hoveredMesh) {
+                    gsap.to(hoveredMesh.scale, {
+                        x: hoveredMesh.userData.originalScale,
+                        y: hoveredMesh.userData.originalScale,
+                        z: hoveredMesh.userData.originalScale,
+                        duration: 0.3
+                    });
+                    hoveredMesh.material.emissive.setHex(hoveredMesh.userData.originalEmissive || 0x000000);
+                    hoveredMesh = null;
+                    document.body.style.cursor = 'default';
+                }
+            }
+
+            webglRenderer.render(scene, camera);
+            cssRenderer.render(scene, camera);
+        }
+
+        function startMode3D() {
+            initMode3D();
+            mode3dRunning = true;
+            onWindowResize3D();
+            animate3D();
+        }
+        function stopMode3D() {
+            mode3dRunning = false;
+        }
+
+        window.navigateTo = function (sectionId) {
+            playDtmfSound();
+
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(sec => sec.classList.remove('active'));
+
+            const activeSection = document.getElementById('menu-' + sectionId);
+            if (activeSection) {
+                activeSection.classList.add('active');
+                document.getElementById('phone-screen').scrollTop = 0;
+            }
+
+            updateCollageForSection(sectionId);
+
+            if (!prefersReducedMotion) {
+                gsap.timeline()
+                    .to(phoneGroup.rotation, { z: -0.05, duration: 0.1 })
+                    .to(phoneGroup.rotation, { z: 0, duration: 0.3, ease: "back.out(2)" });
+            }
+        };
+
+        // ============================================================
+        // CLASSIC MODE — plain scrolling page with a light Three.js
+        // background of drifting shapes. No CSS3DRenderer, so it has
+        // none of the cross-browser 3D-DOM interop issues above and
+        // works identically everywhere, including older browsers.
+        // ============================================================
+        let classicScene, classicCamera, classicRenderer, classicShapes = [];
+        let classicRunning = false;
+        let classicInitialized = false;
+
+        function initClassicBg() {
+            if (classicInitialized) return;
+            classicInitialized = true;
+
+            const canvas = document.getElementById('classic-bg-canvas');
+            classicScene = new THREE.Scene();
+            classicCamera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+            classicCamera.position.z = 18;
+
+            classicRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+            classicRenderer.setSize(window.innerWidth, window.innerHeight);
+            classicRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const light = new THREE.DirectionalLight(0xffffff, 2);
+            light.position.set(4, 6, 10);
+            classicScene.add(light);
+            classicScene.add(new THREE.AmbientLight(0xffffff, 0.6));
+
+            const geos = [
+                new THREE.IcosahedronGeometry(1, 0),
+                new THREE.OctahedronGeometry(1, 0),
+                new THREE.TorusGeometry(0.7, 0.25, 12, 24)
+            ];
+            const colors = [0x00ffcc, 0xff66b2, 0xffffff];
+
+            for (let i = 0; i < 12; i++) {
+                const geo = geos[i % geos.length];
+                const mat = new THREE.MeshStandardMaterial({
+                    color: colors[i % colors.length],
+                    wireframe: i % 3 === 0,
+                    roughness: 0.4,
+                    metalness: 0.3,
+                    transparent: true,
+                    opacity: 0.5
+                });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.set((Math.random() - 0.5) * 22, (Math.random() - 0.5) * 16, -6 - Math.random() * 10);
+                const sc = 0.5 + Math.random() * 0.9;
+                mesh.scale.set(sc, sc, sc);
+                mesh.userData.speed = 0.05 + Math.random() * 0.1;
+                mesh.userData.offset = Math.random() * Math.PI * 2;
+                classicScene.add(mesh);
+                classicShapes.push(mesh);
+            }
+
+            window.addEventListener('resize', onClassicResize);
+        }
+
+        function onClassicResize() {
+            if (!classicInitialized) return;
+            classicCamera.aspect = window.innerWidth / window.innerHeight;
+            classicCamera.updateProjectionMatrix();
+            classicRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animateClassic() {
+            if (!classicRunning) return;
+            requestAnimationFrame(animateClassic);
+            if (!prefersReducedMotion) {
+                const t = Date.now() * 0.001;
+                classicShapes.forEach((m) => {
+                    m.rotation.x += m.userData.speed * 0.01;
+                    m.rotation.y += m.userData.speed * 0.015;
+                    m.position.y += Math.sin(t + m.userData.offset) * 0.003;
+                });
+            }
+            classicRenderer.render(classicScene, classicCamera);
+        }
+
+        function startClassicMode() {
+            initClassicBg();
+            classicRunning = true;
+            onClassicResize();
+            animateClassic();
+        }
+        function stopClassicMode() {
+            classicRunning = false;
+        }
+
+        // ============================================================
+        // MODE TOGGLE
+        // ============================================================
+        const body = document.body;
+        const mode3dEl = document.getElementById('mode-3d');
+        const modeClassicEl = document.getElementById('mode-classic');
+        const toggleBtn = document.getElementById('mode-toggle');
+        const toggleLabel = document.getElementById('mode-toggle-label');
+        const announcer = document.getElementById('mode-announcer');
+        const bootVeil = document.getElementById('boot-veil');
+
+        const STORAGE_KEY = 'shel-portfolio-mode';
+
+        function setMode(mode, announce) {
+            if (mode === 'classic') {
+                body.classList.remove('mode-3d');
+                body.classList.add('mode-classic');
+                mode3dEl.style.display = 'none';
+                modeClassicEl.style.display = 'block';
+                stopMode3D();
+                startClassicMode();
+                toggleLabel.textContent = '📱 3D phone view';
+                toggleBtn.setAttribute('aria-pressed', 'true');
+            } else {
+                body.classList.remove('mode-classic');
+                body.classList.add('mode-3d');
+                mode3dEl.style.display = 'block';
+                modeClassicEl.style.display = 'none';
+                stopClassicMode();
+                startMode3D();
+                toggleLabel.textContent = '☰ Classic view';
+                toggleBtn.setAttribute('aria-pressed', 'false');
+            }
+            try { localStorage.setItem(STORAGE_KEY, mode); } catch (e) { /* storage may be unavailable */ }
+            if (announce) announcer.textContent = mode === 'classic' ? 'Switched to classic view' : 'Switched to 3D phone view';
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            const goingClassic = body.classList.contains('mode-3d');
+            setMode(goingClassic ? 'classic' : '3d', true);
+        });
+
+        let startMode = '3d';
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved === 'classic' || saved === '3d') startMode = saved;
+        } catch (e) { /* storage may be unavailable */ }
+
+        // A user who can't get WebGL at all (very old browser / disabled
+        // GPU) still gets a usable, readable page instead of a blank screen.
+        function hasWebGL() {
+            try {
+                const c = document.createElement('canvas');
+                return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl')));
+            } catch (e) { return false; }
+        }
+        if (!hasWebGL()) startMode = 'classic';
+
+        setMode(startMode, false);
+
+        requestAnimationFrame(() => {
+            setTimeout(() => bootVeil.classList.add('hidden'), 250);
+        });
+    </script>
 </body>
 
 </html>
