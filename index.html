@@ -1,31 +1,25 @@
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
+<!DOCTYPE html><html lang="es"><head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="dark">
     <title>Portafolio - Shel | Joselyn Lagunas</title>
 
     <!-- SEO Básico -->
-    <meta name="description"
-        content="Software Engineering student, technology instructor, and cloud architecture specialist. Explore my interactive portfolio featuring projects on AWS, Quantum Computing, and AI.">
+    <meta name="description" content="Software Engineering student, technology instructor, and cloud architecture specialist. Explore my interactive portfolio featuring projects on AWS, Quantum Computing, and AI.">
 
     <!-- Open Graph (Redes Sociales) -->
     <meta property="og:title" content="Portafolio - Shel">
-    <meta property="og:description"
-        content="Software Engineering student, technology instructor, and cloud architecture specialist.">
+    <meta property="og:description" content="Software Engineering student, technology instructor, and cloud architecture specialist.">
     <meta property="og:image" content="./img/home_1.jpg">
     <meta property="og:type" content="website">
 
     <!-- Favicon -->
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
 
     <!-- Tipografía Space Mono (Vibra Hacker/Y2K) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -94,15 +88,19 @@
         }
 
         /* ============ 3D phone mode ============ */
-        #mode-3d { position: absolute; inset: 0; }
+        #mode-3d { position: fixed; inset: 0; width: 100%; height: 100dvh; overflow: hidden; }
+        @supports not (height: 100dvh) { #mode-3d { height: 100vh; } }
         #webgl-container, #css3d-container, #pixel-canvas {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
         }
-        #webgl-container { z-index: 20; }
-        #css3d-container { pointer-events: none; z-index: 30; transform-style: preserve-3d; }
+        #webgl-container { z-index: 20; pointer-events: none; }
+        #css3d-container { pointer-events: none; z-index: 30; overflow: visible !important; will-change: transform; }
+        #css3d-container > div, #css3d-container > div > div { pointer-events: none; transform-style: preserve-3d !important; }
+        #css3d-container > div > div > div { pointer-events: auto !important; transform-style: preserve-3d !important; }
         #pixel-canvas { pointer-events: none; z-index: 100; }
 
         /* UI DEL TELÉFONO - ESTILO Y2K/TERMINAL */
+        #phone-ui { position: relative; overflow: visible; }
         #phone-screen {
             width: 360px;
             height: 520px;
@@ -111,17 +109,23 @@
             padding: 24px;
             box-sizing: border-box;
             border-radius: 8px;
-            pointer-events: auto;
+            pointer-events: auto !important;
             box-shadow: inset 0 0 0 2px var(--cyan), 0 0 25px rgba(0, 255, 204, 0.2);
-            overflow-y: auto;
+            overflow-y: scroll;
             overscroll-behavior: contain;
             scrollbar-width: thin;
             scrollbar-color: var(--cyan) #000;
             font-size: 15px;
             position: relative;
-            isolation: isolate;
-            backface-visibility: hidden;
-            transform: translateZ(0);
+            isolation: auto !important;
+            transform-style: flat;
+            backface-visibility: visible !important;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        #phone-screen * {
+            pointer-events: auto;
         }
 
         .content-section {
@@ -184,7 +188,7 @@
 
         .menu-list li:hover, .menu-list button:hover {
             color: var(--pink);
-            transform: translateX(5px);
+            transform: translate3d(5px, 0, 0);
             background-image: linear-gradient(to right, var(--pink) 100%, transparent 0%);
             background-size: 100% 1px;
             text-shadow: 0 0 8px rgba(255, 102, 178, 0.4);
@@ -192,7 +196,7 @@
 
         .content-section h2 { font-size: 18px; color: var(--cyan); margin: 0 0 16px 0; text-shadow: 1px 1px 0px var(--pink); }
         .content-section h3 { font-size: 15px; color: var(--pink); margin: 10px 0 5px 0; }
-        .content-section p { font-size: 14px; line-height: 1.5; color: #fff; margin-bottom: 12px;}
+        .content-section p { font-size: 14px; line-height: 1.6; color: #fff; margin-bottom: 1rem;}
 
         .back-btn {
             cursor: pointer; margin-bottom: 15px; display: inline-block; color: #aaa;
@@ -200,9 +204,18 @@
         }
         .back-btn:hover { color: #fff; text-shadow: 0 0 5px #fff; }
 
+        /* Contact links for phone — avoids Firefox CSS3D background-rendering glitch */
+        .phone-contact-link {
+            display: block; padding: 11px 12px; margin-bottom: 10px;
+            color: var(--pink); text-decoration: none; font-weight: bold; font-size: 14px;
+            border-left: 2px solid var(--pink); transition: color 0.2s, padding-left 0.2s;
+        }
+        .phone-contact-link:hover { color: #fff; padding-left: 18px; text-shadow: 0 0 6px var(--pink); }
+
         .sub-item {
-            outline: 1px dashed var(--pink); outline-offset: -1px; padding: 12px; margin-bottom: 12px;
+            outline: 1px dashed var(--pink); outline-offset: -1px; padding: 1.5rem; margin-bottom: 1.2rem; line-height: 1.6;
             cursor: pointer; transition: background 0.2s, transform 0.2s; width: 100%; text-align: left; font: inherit; color: inherit; background: transparent;
+            display: flex; flex-direction: column; gap: 8px;
         }
         .sub-item:hover { background-color: rgba(255, 102, 178, 0.15); transform: translateX(4px); }
         .sub-item strong { color: #fff; display: block; margin-bottom: 4px; }
@@ -228,8 +241,19 @@
         #music-player {
             position: fixed; bottom: 20px; right: 20px; background: rgba(11, 9, 15, 0.85); padding: 12px 16px;
             border-radius: 4px; border: 1.5px solid var(--cyan); box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
-            z-index: 200; display: flex; align-items: center; gap: 15px; font-family: var(--font-mono);
+            z-index: 200; display: flex; align-items: center; gap: 12px; font-family: var(--font-mono);
         }
+        #player-character { width: 52px; height: 52px; flex: 0 0 52px; display: block; }
+        .player-volume { display: flex; align-items: center; gap: 6px; color: var(--cyan); }
+        .player-volume label { font-size: 11px; }
+        #volume-control { width: 72px; accent-color: var(--pink); cursor: pointer; }
+        #cv-sticky {
+            position: fixed; left: 20px; bottom: max(20px, env(safe-area-inset-bottom)); z-index: 260;
+            display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 10px 16px;
+            border: 1px solid var(--pink); border-radius: 20px; background: rgba(11, 9, 15, 0.92);
+            color: var(--pink); font: bold 12px var(--font-mono); text-decoration: none; box-shadow: 0 0 15px rgba(255, 102, 178, 0.2);
+        }
+        #cv-sticky:hover { background: var(--pink); color: var(--panel); box-shadow: 0 0 15px var(--pink); }
         @supports (backdrop-filter: blur(1px)) { #music-player { backdrop-filter: blur(6px); } }
         .track-info { display: flex; flex-direction: column; min-width: 120px; }
         #track-title { font-weight: bold; font-size: 13px; color: #fff; margin-bottom: 3px; text-shadow: 0 0 5px rgba(255,255,255,0.5); }
@@ -241,11 +265,20 @@
         }
         .player-btn svg { width: 14px; height: 14px; fill: currentColor; }
         .player-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 10px var(--cyan); }
-        @media (max-width: 600px) { #music-player { bottom: 15px; right: 15px; left: 15px; justify-content: space-between; } }
+        @media (max-width: 600px) {
+            #music-player { bottom: max(15px, env(safe-area-inset-bottom)); right: 15px; left: 15px; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; grid-template-areas: "character info controls" "character volume controls"; column-gap: 7px; row-gap: 2px; align-items: center; padding: 8px 10px; }
+            #player-character { grid-area: character; }
+            #music-player .track-info { grid-area: info; min-width: 0; }
+            #music-player .player-volume { grid-area: volume; min-width: 0; }
+            #music-player .player-controls { grid-area: controls; }
+            #cv-sticky { left: 15px; bottom: calc(112px + env(safe-area-inset-bottom)); }
+            #player-character { width: 44px; height: 44px; flex-basis: 44px; }
+            #volume-control { width: 62px; max-width: 100%; }
+        }
 
         #noise-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; opacity: 0.35;
-            background: linear-gradient(to bottom, rgba(0, 255, 204, 0), rgba(0, 255, 204, 0) 50%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.2)),
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 25; opacity: 0.15; mix-blend-mode: overlay;
+            background: linear-gradient(to bottom, rgba(0, 255, 204, 0), rgba(0, 255, 204, 0) 50%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.3)),
                 url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
             background-size: 100% 4px, auto;
         }
@@ -281,15 +314,51 @@
 
         .classic-shell { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 100px 24px 80px; }
 
-        /* Navbar UI Clásico - Accesible en todo momento */
+        /* Navbar UI Clásico - Responsive hamburger */
         .classic-nav {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 300; display: flex; justify-content: center; flex-wrap: wrap; gap: 20px;
-            padding: 20px 24px; background: rgba(5, 3, 8, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0, 255, 204, 0.2);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+            background: rgba(5, 3, 8, 0.97); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0, 255, 204, 0.2);
             font-size: 13px; letter-spacing: 1px; font-weight: bold;
         }
-        .classic-nav a { color: var(--text-soft); text-decoration: none; padding-bottom: 3px; border-bottom: 1px solid transparent; transition: all 0.2s; }
-        .classic-nav a:hover, .classic-nav a.is-active { color: var(--cyan); border-bottom-color: var(--cyan); text-shadow: 0 0 8px var(--cyan); }
-        .classic-nav a.is-active::before { content: "● "; color: var(--pink); }
+        @supports (backdrop-filter: blur(1px)) { .classic-nav { backdrop-filter: blur(12px); } }
+
+        /* Nav inner wrapper — links row on desktop */
+        .classic-nav-inner {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 24px; gap: 8px;
+        }
+
+        /* Desktop links */
+        .classic-nav-links {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px;
+            list-style: none; margin: 0; padding: 0;
+        }
+        .classic-nav-links a { color: var(--text-soft); text-decoration: none; padding-bottom: 3px; border-bottom: 1px solid transparent; transition: all 0.2s; white-space: nowrap; }
+        .classic-nav-links a:hover, .classic-nav-links a.is-active { color: var(--cyan); border-bottom-color: var(--cyan); text-shadow: 0 0 8px var(--cyan); }
+        .classic-nav-links a.is-active::before { content: "● "; color: var(--pink); }
+
+        /* Hamburger button */
+        .nav-hamburger {
+            display: none; background: none; border: 1px solid var(--cyan); border-radius: 4px;
+            color: var(--cyan); padding: 6px 10px; cursor: pointer; font: bold 14px var(--font-mono);
+            flex: 0 0 auto; transition: all 0.2s; line-height: 1;
+        }
+        .nav-hamburger:hover { background: var(--cyan); color: var(--panel); }
+        .nav-hamburger[aria-expanded="true"] { background: var(--pink); border-color: var(--pink); color: var(--panel); }
+
+        /* Mobile nav menu (hidden by default) */
+        .classic-nav-menu {
+            display: none; flex-direction: column; gap: 0;
+            padding: 8px 24px 16px; border-top: 1px solid rgba(0, 255, 204, 0.15);
+        }
+        .classic-nav-menu.is-open { display: flex; }
+        .classic-nav-menu a {
+            color: var(--text-soft); text-decoration: none; padding: 11px 0;
+            border-bottom: 1px solid rgba(0, 255, 204, 0.1); transition: all 0.2s; display: block;
+        }
+        .classic-nav-menu a:last-child { border-bottom: none; }
+        .classic-nav-menu a:hover, .classic-nav-menu a.is-active { color: var(--cyan); padding-left: 8px; }
+        .classic-nav-menu a.is-active::before { content: "● "; color: var(--pink); }
         #classic-progress { position: fixed; top: 0; left: 0; z-index: 450; width: 0; height: 3px; background: linear-gradient(90deg, var(--pink), var(--cyan)); box-shadow: 0 0 12px var(--cyan); transition: width 0.12s linear; }
 
         /* Estilos Hero Y2K */
@@ -331,8 +400,8 @@
 
         .classic-section { padding: 56px 0; border-bottom: 1px dashed rgba(0, 255, 204, 0.2); }
         .classic-section:last-of-type { border-bottom: none; }
-        .classic-section.reveal-ready { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
-        .classic-section.reveal-ready.is-visible { opacity: 1; transform: translateY(0); }
+        .classic-section.reveal-ready, .grid-item.reveal-ready { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        .classic-section.reveal-ready.is-visible, .grid-item.reveal-ready.is-visible { opacity: 1; transform: translateY(0); }
         body.mode-classic .classic-shell > .classic-section:first-of-type.reveal-ready { opacity: 1; transform: translateY(0); }
         .classic-section:nth-of-type(even).is-visible { transition-delay: 0.06s; }
         body.mode-classic .classic-section:nth-of-type(even) { background: linear-gradient(90deg, rgba(0, 255, 204, 0.035), transparent 72%); }
@@ -381,10 +450,32 @@
         .session-list .venue, .timeline-list .date { font-size: 12px; font-weight: bold; color: var(--pink); margin: 0 0 8px; }
         .session-list p, .timeline-list p { margin: 0; font-size: 14px; color: var(--text-soft); line-height: 1.55; }
 
-        /* Contacto */
-        .contact-grid { display: flex; flex-direction: column; gap: 14px; margin-top: 15px; }
-        .contact-grid a { font-weight: bold; font-size: 16px; color: var(--cyan); text-decoration: none; transition: color 0.2s; width: fit-content; }
-        .contact-grid a:hover { color: var(--pink); text-shadow: 0 0 8px var(--pink); transform: translateX(5px); }
+        /* Contacto Y2K Retro Buttons */
+        .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 15px; }
+        .contact-grid a { 
+            background: #000; 
+            border: 2px solid var(--cyan); 
+            color: var(--cyan); 
+            font-family: var(--font-mono); 
+            font-size: 16px; 
+            font-weight: bold; 
+            padding: 12px; 
+            text-align: center; 
+            text-decoration: none; 
+            box-shadow: 4px 4px 0px var(--cyan); 
+            transition: all 0.1s ease; 
+        }
+        .contact-grid a:hover { 
+            background: var(--cyan); 
+            color: #000; 
+            transform: translate(2px, 2px); 
+            box-shadow: 2px 2px 0px var(--cyan); 
+            text-shadow: none;
+        }
+        .contact-grid a:active {
+            transform: translate(4px, 4px);
+            box-shadow: none;
+        }
 
         .classic-footer { text-align: center; padding: 30px 24px 40px; font-size: 11px; color: #667; }
         *:focus-visible { outline: 2px dashed var(--pink); outline-offset: 4px; }
@@ -397,11 +488,12 @@
         body.mode-classic { background: radial-gradient(circle at 80% 8%, rgba(255, 102, 178, 0.12), transparent 28rem), var(--ink); }
         body.mode-classic #backdrop-fx { opacity: 0.45; }
         body.mode-classic .top-controls { top: 18px; left: auto; right: 22px; }
-        body.mode-classic .classic-shell { max-width: 1080px; padding: 128px 40px 96px; }
-        body.mode-classic .classic-nav { position: fixed; top: 0; right: 330px; padding: 18px 16px 18px 40px; justify-content: flex-start; gap: 10px; text-align: left; flex-wrap: nowrap; overflow: hidden; white-space: nowrap; font-size: 12px; }
+        body.mode-classic .classic-shell { max-width: 1080px; padding: 80px 40px 96px; }
+        body.mode-classic .classic-nav-inner { padding: 14px 40px; }
+        body.mode-classic .classic-nav-menu { padding: 8px 40px 16px; }
         body.mode-classic .classic-hero { min-height: 62vh; display: flex; flex-direction: column; justify-content: center; padding: 76px 0 96px; }
-        body.mode-classic .classic-hero h1 { max-width: 920px; font-size: clamp(42px, 7vw, 86px); letter-spacing: -2px; text-shadow: 5px 5px 0 rgba(255, 102, 178, 0.85); }
-        body.mode-classic .classic-hero p { max-width: 720px; font-size: 17px; }
+        body.mode-classic .classic-hero h1 { max-width: 60%; font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1.1; letter-spacing: -2px; text-shadow: 5px 5px 0 rgba(255, 102, 178, 0.85); }
+        body.mode-classic .classic-hero p { max-width: 55%; font-size: 17px; }
         body.mode-classic .classic-section { padding: 92px 0; }
         body.mode-classic .classic-section h2 { font-size: 14px; letter-spacing: 2px; margin-bottom: 30px; }
         body.mode-classic .classic-section h2::before { content: "//"; color: var(--cyan); margin-right: 8px; }
@@ -415,6 +507,7 @@
         body.mode-classic .timeline-list li:nth-child(even), body.mode-classic .session-list li:nth-child(even) { background: rgba(255, 255, 255, 0.035); }
         body.mode-classic .timeline-list li:nth-child(odd), body.mode-classic .session-list li:nth-child(odd) { background: rgba(0, 0, 0, 0.18); }
         .video-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
+        #phone-screen .video-links { grid-template-columns: 1fr; }
         .video-link { display: flex; min-height: 150px; flex-direction: column; justify-content: flex-end; gap: 8px; padding: 20px; color: #fff; text-decoration: none; border: 1px solid rgba(0, 255, 204, 0.35); background: linear-gradient(145deg, rgba(0, 255, 204, 0.12), rgba(255, 102, 178, 0.18)), var(--panel); transition: transform 0.2s, border-color 0.2s; }
         .video-link:hover { transform: translateY(-4px); border-color: var(--pink); box-shadow: 0 8px 24px rgba(255, 102, 178, 0.18); }
         .video-link small { color: var(--pink); font-weight: bold; }
@@ -443,7 +536,7 @@
         .impact-stat.is-counting::after { content: ""; display: block; height: 2px; width: 100%; margin-top: 14px; background: linear-gradient(90deg, var(--pink), var(--cyan)); transform-origin: left; animation: statLine 1.4s ease-out both; }
         @keyframes statPop { 0% { opacity: 0; transform: scale(.55); } 65% { opacity: 1; transform: scale(1.14); } 100% { transform: scale(1); } }
         @keyframes statLine { from { transform: scaleX(0); opacity: 0; } to { transform: scaleX(1); opacity: 1; } }
-        .classic-hero { position: relative; overflow: hidden; }
+        .classic-hero { position: relative; padding: 76px 0 96px 0; }
         .classic-hero::after { content: "SHEL / 2026"; position: absolute; right: 0; bottom: 30px; color: rgba(0, 255, 204, 0.28); font-size: 11px; letter-spacing: 3px; transform: rotate(-90deg) translateX(100%); transform-origin: right bottom; }
         .classic-hero .cta-row .classic-cta { position: relative; overflow: hidden; }
         .classic-hero .cta-row .classic-cta::after { content: "↗"; margin-left: 9px; transition: transform 0.2s ease; }
@@ -452,10 +545,12 @@
             .top-controls { top: 8px; left: 8px; right: 8px; justify-content: space-between; gap: 6px; }
             .top-controls .ui-toggle-btn { padding: 7px 9px; font-size: 10px; gap: 4px; }
             body.mode-classic .top-controls { top: 12px; right: 12px; }
-            body.mode-classic .classic-nav { right: 0; padding: 16px 20px; gap: 22px; font-size: 11px; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; scrollbar-width: none; white-space: nowrap; }
-            body.mode-classic .classic-nav::-webkit-scrollbar { display: none; }
-            body.mode-classic .top-controls { top: 72px; left: auto; right: 12px; justify-content: flex-end; }
-            body.mode-classic .classic-shell { padding: 116px 20px 64px; }
+            /* Hamburger visible, links row hidden on mobile */
+            .nav-hamburger { display: block; }
+            .classic-nav-links { display: none; }
+            body.mode-classic .classic-nav-inner { padding: 10px 20px; }
+            body.mode-classic .classic-nav-menu { padding: 8px 20px 16px; }
+            body.mode-classic .classic-shell { padding: 72px 20px 64px; }
             body.mode-classic .classic-hero { min-height: auto; padding: 48px 0 64px; }
             body.mode-classic .classic-hero h1 { font-size: clamp(36px, 12vw, 58px); letter-spacing: -1px; }
             body.mode-classic .classic-hero::after { display: none; }
@@ -468,6 +563,365 @@
             .availability-panel, .case-study { grid-template-columns: 1fr; }
             .archive-intro { display: block; }
         }
+
+        /* Tablet: show hamburger, hide inline links */
+        @media (min-width: 701px) and (max-width: 1024px) {
+            .nav-hamburger { display: block; }
+            .classic-nav-links { display: none; }
+            body.mode-classic .top-controls { top: 14px; right: 18px; }
+            body.mode-classic .classic-shell { padding: 80px 28px 80px; }
+        }
+    
+        /* Bento Grid Layout */
+        .classic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            padding: 40px 0;
+        }
+        .grid-item {
+            background: #ffffff;
+            color: #111;
+            border-radius: 16px;
+            padding: 32px;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+        }
+        .grid-item:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 255, 204, 0.15);
+        }
+        #c-projects {
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            border-radius: 24px;
+            padding: 60px 40px;
+            margin: 40px 0;
+            border: 1px dashed rgba(255, 102, 178, 0.2);
+        }
+        #c-projects h2 {
+            text-align: center;
+            font-size: 32px;
+            letter-spacing: 0;
+            color: #fff;
+            margin-bottom: 40px;
+        }
+        .grid-item .bento-title { color: #000; }
+        .grid-item .bento-desc { color: #444; }
+        .grid-item .pill-badge { background: #f0f0f0; border-color: #ddd; color: #333; }
+        .grid-item-large .pill-badge { background: #fff0f5; color: #d81b60; border-color: #f8bbd0; }
+        .grid-item .classic-cta { background: #111; color: #fff; border-radius: 8px; padding: 10px 20px; font-weight: bold; border: none; text-align: center; }
+
+        
+        .grid-item-large {
+            grid-column: 1 / -1; /* Spans full width */
+            border: 1px solid var(--pink);
+        }
+        @media (min-width: 800px) {
+            .classic-grid { grid-template-columns: repeat(2, 1fr); }
+            .grid-item-large { grid-column: span 2; }
+        }
+        
+        .bento-kicker { font-size: 12px; color: var(--pink); letter-spacing: 2px; font-weight: bold; margin-bottom: 12px; display: block; }
+        .bento-title { font-size: 28px; font-weight: 800; color: var(--cyan); margin: 0 0 16px; letter-spacing: -0.5px; }
+        .grid-item-large .bento-title { font-size: 36px; }
+        .bento-desc { font-size: 15px; line-height: 1.6; color: var(--text-soft); flex-grow: 1; margin-bottom: 24px; }
+        
+        /* Pill Badges */
+        .pill-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+        .pill-badge {
+            background: rgba(0, 255, 204, 0.1);
+            color: var(--cyan);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            font-family: var(--font-mono);
+        }
+        .grid-item-large .pill-badge { background: rgba(255, 102, 178, 0.1); color: var(--pink); border-color: rgba(255, 102, 178, 0.3); }
+
+        /* Sticky Nav (Sidebar) Layout */
+        @media (min-width: 1024px) {
+            .classic-layout-wrapper { display: flex; max-width: 1200px; margin: 0 auto; }
+            .classic-nav {
+                position: sticky !important;
+                top: 40px !important;
+                height: fit-content;
+                width: 260px;
+                background: transparent !important;
+                border: none !important;
+                backdrop-filter: none !important;
+                padding-top: 100px;
+            }
+            .classic-nav-inner { flex-direction: column; align-items: flex-start; padding: 0 !important; }
+            .classic-nav-links { flex-direction: column; align-items: flex-start; gap: 16px !important; }
+            .classic-nav-links a { font-size: 15px; padding: 4px 0 !important; border: none !important; }
+            .classic-nav-links a.is-active { border-left: 2px solid var(--cyan) !important; padding-left: 12px !important; color: var(--cyan); }
+            .classic-nav-links a.is-active::before { display: none; }
+            body.mode-classic .classic-shell { flex-grow: 1; max-width: 860px; padding: 100px 40px 80px !important; margin: 0 !important; }
+            .nav-hamburger { display: none !important; }
+        }
+
+    
+        /* Floating Stickers */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .floating-sticker {
+            position: absolute;
+            background: var(--pink);
+            color: #111;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            box-shadow: 4px 4px 0 rgba(0,255,204,1);
+            border: 2px solid #111;
+            cursor: default;
+            animation: float 4s ease-in-out infinite;
+            z-index: 10;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .floating-sticker:hover {
+            transform: scale(1.1) rotate(5deg) !important;
+            animation: none; /* stop float on hover */
+        }
+        .sticker-1 { top: 20%; right: 15%; animation-delay: 0s; background: #fff; pointer-events: auto; }
+        .sticker-2 { top: 40%; right: 5%; animation-delay: 1.2s; background: var(--cyan); pointer-events: auto; }
+        .sticker-3 { top: 60%; right: 20%; animation-delay: 2.5s; background: var(--pink); pointer-events: auto; }
+
+
+    
+        /* Magnetic Horizontal Carousel - Y2K Style */
+        .crew-carousel {
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding-bottom: 20px;
+            padding-top: 10px;
+            margin-top: 30px;
+        }
+        .crew-carousel::-webkit-scrollbar { height: 12px; }
+        .crew-carousel::-webkit-scrollbar-track { background: #000; border: 1px solid var(--cyan); }
+        .crew-carousel::-webkit-scrollbar-thumb { background: var(--pink); border-radius: 0; }
+        .crew-card {
+            flex: 0 0 320px;
+            scroll-snap-align: center;
+            border-radius: 4px;
+            background: var(--ink);
+            background-image: radial-gradient(circle at 1px 1px, rgba(0, 255, 204, 0.15) 1px, transparent 0);
+            background-size: 14px 14px;
+            color: #fff;
+            border: 2px solid var(--cyan);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            transition: 0.2s;
+        }
+        .crew-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 4px 4px 0px var(--cyan);
+            background-color: #0a0812;
+        }
+        .crew-card-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .crew-badge {
+            align-self: flex-start;
+            background: var(--cyan);
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 2px;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .crew-card-content h3 {
+            font-size: 22px;
+            color: var(--cyan);
+            margin: 0 0 12px;
+            font-weight: 800;
+            line-height: 1.3;
+            font-family: var(--font-mono);
+            text-shadow: 2px 2px 0px var(--pink);
+        }
+        .crew-card-content p {
+            font-size: 14px;
+            color: var(--text-soft);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+    
+        /* Tech Flow Layout */
+        .tech-flow {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-top: 40px;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .tech-flow { flex-direction: column; }
+            .tech-flow::before { display: none; }
+        }
+        .tech-flow::before {
+            content: "";
+            position: absolute;
+            top: 40px; /* Half of the icon height */
+            left: 0;
+            width: 100%;
+            border-top: 2px dashed var(--cyan);
+            z-index: 0;
+            opacity: 0.5;
+        }
+        .flow-step {
+            flex: 1;
+            z-index: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .flow-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--ink);
+            border: 2px solid var(--pink);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(255, 102, 178, 0.2);
+        }
+        .flow-step h3 {
+            font-size: 18px;
+            color: #fff;
+            margin: 0 0 10px;
+            text-shadow: 1px 1px 0px var(--cyan);
+        }
+        .flow-step p {
+            font-size: 14px;
+            color: var(--text-soft);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+    
+        /* Project Timeline (Snake path) */
+        .project-timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px 0;
+        }
+        .project-timeline::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            border-left: 2px dashed rgba(255, 255, 255, 0.3);
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+        @media (max-width: 768px) {
+            .project-timeline::before { left: 20px; }
+        }
+        .timeline-card-container {
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 50%;
+            position: relative;
+            margin-bottom: 40px;
+            width: 100%;
+        }
+        .timeline-card-container.right {
+            justify-content: flex-start;
+            padding-right: 0;
+            padding-left: 50%;
+        }
+        @media (max-width: 768px) {
+            .timeline-card-container, .timeline-card-container.right {
+                padding-left: 50px !important;
+                padding-right: 0 !important;
+                justify-content: flex-start !important;
+            }
+        }
+        .timeline-card {
+            width: 90%;
+            background: var(--ink);
+            border-radius: 4px;
+            padding: 0;
+            position: relative;
+            z-index: 1;
+            box-shadow: 6px 6px 0px var(--pink);
+            border: 2px solid var(--cyan);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-window-header {
+            background: var(--cyan);
+            color: var(--ink);
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: bold;
+            font-family: var(--font-mono);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--cyan);
+            display: flex;
+            justify-content: space-between;
+        }
+        .card-inner {
+            padding: 24px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border-radius: 0;
+        }
+        /* Vibrant Colors */
+        .bg-lime { background: #CCFF00; }
+        .bg-lilac { background: #B388FF; }
+        .bg-blue { background: #2979FF; }
+        
+        .text-black { color: #000 !important; }
+        .text-white { color: #fff !important; }
+        
+        /* 3D Pin */
+        .card-pin {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 24px;
+            background: radial-gradient(circle at 30% 30%, #ff66b2, #d81b60);
+            border-radius: 50%;
+            box-shadow: 
+                inset -2px -2px 4px rgba(0,0,0,0.4),
+                inset 2px 2px 4px rgba(255,255,255,0.6),
+                0 4px 8px rgba(0,0,0,0.4);
+            z-index: 10;
+        }
+
     </style>
 </head>
 
@@ -506,43 +960,42 @@
                 <div id="menu-home" class="content-section active">
                     <div class="phone-header">
                         <h1>SHEL</h1>
-                        <p>SOFTWARE & QAI SOLUTIONS ENGINEER<br>AWS COMMUNITY BUILDER | TECH SPEAKER</p>
+                        <p data-i18n="phone.home.subtitle">SOFTWARE &amp; QAI SOLUTIONS ENGINEER<br>AWS COMMUNITY BUILDER | TECH SPEAKER</p>
                     </div>
                     <ul class="menu-list" role="menu">
-                        <li role="none"><button type="button" role="menuitem" data-phone-section="about">1. ABOUT & JOURNEY</button></li>
-                        <li role="none"><button type="button" role="menuitem" data-phone-section="skills">2. TECH & FOCUS</button></li>
-                        <li role="none"><button type="button" role="menuitem" data-phone-section="projects">3. PROJECTS</button></li>
-                        <li role="none"><button type="button" role="menuitem" data-phone-section="experience">4. R&D EXPERIENCE</button></li>
-                        <li role="none"><button type="button" role="menuitem" data-phone-section="community">5. COMMUNITY & TALKS</button></li>
-                        <li role="none"><button type="button" role="menuitem" data-phone-section="contact">6. CONTACT & LINKS</button></li>
+                        <li role="none"><button type="button" role="menuitem" data-phone-section="about" data-i18n="phone.menu.about">1. ABOUT &amp; JOURNEY</button></li>
+                        <li role="none"><button type="button" role="menuitem" data-phone-section="skills" data-i18n="phone.menu.skills">2. TECH &amp; FOCUS</button></li>
+                        <li role="none"><button type="button" role="menuitem" data-phone-section="projects" data-i18n="phone.menu.projects">3. PROJECTS</button></li>
+                        <li role="none"><button type="button" role="menuitem" data-phone-section="experience" data-i18n="phone.menu.experience">4. R&amp;D EXPERIENCE</button></li>
+                        <li role="none"><button type="button" role="menuitem" data-phone-section="community" data-i18n="phone.menu.community">5. COMMUNITY &amp; TALKS</button></li>
+                        <li role="none"><button type="button" role="menuitem" data-phone-section="contact" data-i18n="phone.menu.contact">6. CONTACT &amp; LINKS</button></li>
                     </ul>
                 </div>
 
                 <!-- About Me -->
                 <div id="menu-about" class="content-section">
-                    <button class="back-btn" type="button" data-phone-section="home">[x] RETURN</button>
-                    <h2>ABOUT ME</h2>
-                    <p><strong>01 — My Journey</strong><br>Mi trayectoria no ha sido lineal, y precisamente ahí está una de mis mayores fortalezas. Empecé en Ingeniería en Metalurgia y Materiales, desarrollando un pensamiento orientado a procesos. Después decidí moverme hacia Ingeniería en Desarrollo de Software en la UVEG.</p>
-                    <p>Mi curiosidad me llevó por: VR/AR → Neurotechnology → Cloud → AI → Quantum Computing → Community Building. No veo estos campos separados; son distintas formas de entender sistemas.</p>
-                    <p><strong>The Common Thread:</strong> I build bridges. Entre Research ↔ Industry, Software ↔ Emerging Tech, AI ↔ Cloud. Conecto cosas que normalmente se estudian por separado.</p>
-
-                    <a href="CV/Lagunas_Joselyn_CV_AI_Native-2.pdf" download class="cv-btn">📄 DOWNLOAD CV</a>
+                    <button class="back-btn" type="button" data-phone-section="home" data-i18n="phone.back.home">[x] RETURN</button>
+                    <h2 data-i18n="phone.about.title">ABOUT ME</h2>
+                    <p data-i18n="phone.about.p1"><strong>01 — My Journey</strong><br>My path has not been linear, and that is one of my greatest strengths. I started in Metallurgy &amp; Materials Engineering before moving into Software Development Engineering.</p>
+                    <p data-i18n="phone.about.p2">My curiosity led me through: VR/AR → Neurotechnology → Cloud → AI → Quantum Computing → Community Building. I see these fields as different ways to understand systems, not separate paths.</p>
+                    <p data-i18n="phone.about.p3"><strong>The Common Thread:</strong> I build bridges. Research ↔ Industry, Software ↔ Emerging Tech, AI ↔ Cloud.</p>
+                    <a href="CV/Lagunas_Joselyn_CV_AI_Native-2.pdf" download="" class="cv-btn" data-i18n="phone.about.cv">📄 DOWNLOAD CV</a>
                 </div>
 
                 <!-- Skills -->
                 <div id="menu-skills" class="content-section">
-                    <button class="back-btn" type="button" data-phone-section="home">[x] RETURN</button>
-                    <h2>WHAT I BUILD</h2>
-                    <p><strong>Software Engineering:</strong> Python, Rust, Flutter, APIs, CLI tools, rapid prototyping, systems integration.</p>
-                    <p><strong>Cloud & AWS:</strong> AWS architecture, Amazon S3, Amazon Braket, serverless, hybrid classical-quantum workflows.</p>
-                    <p><strong>AI & Machine Learning:</strong> Agentic AI, LangChain/LangGraph, Generative AI, local AI (Ollama).</p>
-                    <p><strong>03 — Quantum Computing:</strong> Explorando computación cuántica orientada a desarrolladores. Conecto Classical Computing + Cloud + AI + Quantum. He trabajado con Amazon Braket, algoritmos simulados, QAOA y optimización.</p>
+                    <button class="back-btn" type="button" data-phone-section="home" data-i18n="phone.back.home">[x] RETURN</button>
+                    <h2 data-i18n="phone.skills.title">WHAT I BUILD</h2>
+                    <p data-i18n="phone.skills.p1"><strong>Software Engineering:</strong> Python, Rust, Flutter, APIs, CLI tools, rapid prototyping, systems integration.</p>
+                    <p data-i18n="phone.skills.p2"><strong>Cloud &amp; AWS:</strong> AWS architecture, Amazon S3, Amazon Braket, serverless, hybrid classical-quantum workflows.</p>
+                    <p data-i18n="phone.skills.p3"><strong>AI &amp; Machine Learning:</strong> Agentic AI, LangChain/LangGraph, Generative AI, local AI (Ollama).</p>
+                    <p data-i18n="phone.skills.p4"><strong>Quantum Computing:</strong> Developer-oriented quantum computing. Simulated algorithms, QAOA and optimization. Working with Amazon Braket.</p>
                 </div>
 
                 <!-- Lista de Proyectos -->
                 <div id="menu-projects" class="content-section">
-                    <button class="back-btn" type="button" data-phone-section="home">[x] RETURN</button>
-                    <h2>PINNED PROJECTS</h2>
+                    <button class="back-btn" type="button" data-phone-section="home" data-i18n="phone.back.home">[x] RETURN</button>
+                    <h2 data-i18n="phone.projects.title">PINNED PROJECTS</h2>
                     <button class="sub-item" type="button" data-phone-section="proj1">
                         <strong>Sorority</strong><small>Rust / Flutter / 3D Trust Network</small>
                     </button>
@@ -555,84 +1008,84 @@
                     <button class="sub-item" type="button" data-phone-section="proj4">
                         <strong>NeuroCopilot</strong><small>LangChain / Multi-agent</small>
                     </button>
-                    <a href="https://github.com/Shel-y" target="_blank" rel="noopener" class="github-btn">VER MÁS EN GITHUB</a>
+                    <a href="https://github.com/Shel-y" target="_blank" rel="noopener" class="github-btn" data-i18n="phone.projects.github">VIEW MORE ON GITHUB</a>
                 </div>
 
                 <!-- Proyectos Detalle -->
                 <div id="menu-proj1" class="content-section">
-                    <button class="back-btn" type="button" data-phone-section="projects">[<] BACK</button>
+                    <button class="back-btn" type="button" data-phone-section="projects" data-i18n="phone.back.projects">[&lt;] BACK</button>
                     <h2>Sorority</h2>
-                    <p>Decentralized 3D trust network combining a Rust simulation backend with a Flutter UI via FFI to visualize collective safety and alert propagation.</p>
-                    <a href="https://github.com/Shel-y/Sorority" target="_blank" class="github-btn">GitHub Repo</a>
+                    <p data-i18n="phone.proj1.desc">Decentralized 3D trust network combining a Rust simulation backend with a Flutter UI via FFI to visualize collective safety and alert propagation.</p>
+                    <a href="https://github.com/Shel-y/Sorority" target="_blank" class="github-btn" data-i18n="phone.proj.repo">GitHub Repo</a>
                 </div>
                 <div id="menu-proj2" class="content-section">
-                    <button class="back-btn" type="button" data-phone-section="projects">[<] BACK</button>
+                    <button class="back-btn" type="button" data-phone-section="projects" data-i18n="phone.back.projects">[&lt;] BACK</button>
                     <h2>Traffic Rain AI</h2>
-                    <p>Hybrid classical-quantum system processing flooding data using machine learning, graph algorithms, and Amazon Braket for urban route optimization.</p>
-                    <a href="https://github.com/Shel-y/traffic-rain-ai" target="_blank" class="github-btn">GitHub Repo</a>
+                    <p data-i18n="phone.proj2.desc">Hybrid classical-quantum system processing flooding data using machine learning, graph algorithms, and Amazon Braket for urban route optimization.</p>
+                    <a href="https://github.com/Shel-y/traffic-rain-ai" target="_blank" class="github-btn" data-i18n="phone.proj.repo">GitHub Repo</a>
                 </div>
                 <div id="menu-proj3" class="content-section">
-                    <button class="back-btn" type="button" data-phone-section="projects">[<] BACK</button>
+                    <button class="back-btn" type="button" data-phone-section="projects" data-i18n="phone.back.projects">[&lt;] BACK</button>
                     <h2>Q-Drift CLI</h2>
-                    <p>Command-line tool measuring probabilistic failure rates in distributed logic paths using Shannon entropy and noise models.</p>
-                    <a href="https://github.com/Shel-y/q-drift" target="_blank" class="github-btn">GitHub Repo</a>
+                    <p data-i18n="phone.proj3.desc">Command-line tool measuring probabilistic failure rates in distributed logic paths using Shannon entropy and noise models.</p>
+                    <a href="https://github.com/Shel-y/q-drift" target="_blank" class="github-btn" data-i18n="phone.proj.repo">GitHub Repo</a>
                 </div>
                 <div id="menu-proj4" class="content-section">
-                    <button class="back-btn" type="button" data-phone-section="projects">[<] BACK</button>
+                    <button class="back-btn" type="button" data-phone-section="projects" data-i18n="phone.back.projects">[&lt;] BACK</button>
                     <h2>NeuroCopilot</h2>
-                    <p>Multi-agent AI application built with LangChain, LangGraph, and Gradio to process simulated neural signals and generate structured reasoning.</p>
-                    <a href="https://github.com/Shel-y/Neurocopilot" target="_blank" class="github-btn">GitHub Repo</a>
+                    <p data-i18n="phone.proj4.desc">Multi-agent AI application built with LangChain, LangGraph, and Gradio to process simulated neural signals and generate structured reasoning.</p>
+                    <a href="https://github.com/Shel-y/Neurocopilot" target="_blank" class="github-btn" data-i18n="phone.proj.repo">GitHub Repo</a>
                 </div>
 
                 <!-- Experience -->
                 <div id="menu-experience" class="content-section">
-                    <button class="back-btn" type="button" data-phone-section="home">[x] RETURN</button>
-                    <h2>INTERNATIONAL R&D</h2>
+                    <button class="back-btn" type="button" data-phone-section="home" data-i18n="phone.back.home">[x] RETURN</button>
+                    <h2 data-i18n="phone.exp.title">INTERNATIONAL R&amp;D</h2>
                     <p><strong>Mirai Innovation Research Institute</strong><br><em>Osaka, Japan</em></p>
-                    <p>Participé en un proyecto internacional de I+D trabajando en la intersección de: Neurotechnology + Software + VR + AI + HCI.</p>
-                    <p>Trabajé con Python, real-time EEG processing (AURA EEG), Unity, Meta Quest 2 y Wi-Fi socket communication. Uno de los proyectos fue <em>Nihongo Crisis</em>, aprendizaje adaptativo de japonés usando VR y señales EEG. Presentado ante el CEO y el Director de Innovación.</p>
+                    <p data-i18n="phone.exp.p1">I participated in an international R&amp;D project at the intersection of: Neurotechnology + Software + VR + AI + HCI.</p>
+                    <p data-i18n="phone.exp.p2">I worked with Python, real-time EEG processing (AURA EEG), Unity, Meta Quest 2 and Wi-Fi socket communication. One project was <em>Nihongo Crisis</em>, adaptive Japanese learning using VR and EEG signals. Presented to the CEO and Director of Innovation.</p>
                 </div>
 
                 <!-- Community -->
                 <div id="menu-community" class="content-section">
-                    <button class="back-btn" type="button" data-phone-section="home">[x] RETURN</button>
-                    <h2>COMMUNITY & IMPACT</h2>
-                    <p><strong>AWSpectrum LATAM (Founder & Lead)</strong><br>La primera comunidad de mujeres enfocada en AWS en Latinoamérica. Construyendo identidad, equipos, eventos y espacios seguros para el talento diverso.</p>
-                    <p><strong>Teaching & Mentorship</strong><br>Fui instructora de programación en PILARES para 50+ estudiantes. Traduzco conceptos técnicos complejos para audiencias de todos los niveles. Mentora en AWS Builders bootcamp y QIntern 2026.</p>
+                    <button class="back-btn" type="button" data-phone-section="home" data-i18n="phone.back.home">[x] RETURN</button>
+                    <h2 data-i18n="phone.community.title">COMMUNITY &amp; IMPACT</h2>
+                    <p data-i18n="phone.community.p1"><strong>AWSpectrum LATAM (Founder &amp; Lead)</strong><br>The first AWS-focused women's community in Latin America. Building identity, teams, events and safe spaces for diverse talent.</p>
+                    <p data-i18n="phone.community.p2"><strong>Teaching &amp; Mentorship</strong><br>Programming instructor for 50+ students. I translate complex technical concepts for all audiences. Mentor at AWS Builders bootcamp and QIntern 2026.</p>
                     <button class="sub-item" type="button" data-phone-section="sessions">
-                        <strong>&gt; VIEW SESSIONS & TALKS</strong>
-                    </div>
+                        <strong data-i18n="phone.community.sessions">&gt; VIEW SESSIONS &amp; TALKS</strong>
+                    </button>
                 </div>
 
                 <!-- Sessions -->
                 <div id="menu-sessions" class="content-section">
-                    <button class="back-btn" type="button" data-phone-section="community">[<] BACK</button>
-                    <h2>TALKS & MEDIA</h2>
-                    <p>He participado en 10+ eventos técnicos en México sobre AWS, Cloud, AI y Quantum.</p>
-                    <div class="sub-item"><strong>AWS Summit Mexico 2026</strong><small>Atrapado en la lluvia / Quantum Spotlight</small></div>
-                    <div class="sub-item"><strong>AWSome Women Summit LATAM</strong><small>De lo Clásico a lo Cuántico con AWS</small></div>
+                    <button class="back-btn" type="button" data-phone-section="community" data-i18n="phone.back.community">[&lt;] BACK</button>
+                    <h2 data-i18n="phone.sessions.title">TALKS &amp; MEDIA</h2>
+                    <p data-i18n="phone.sessions.p1">I have participated in 10+ technical events in Mexico on AWS, Cloud, AI and Quantum.</p>
+                    <div class="sub-item"><strong>AWS Summit Mexico 2026</strong><small data-i18n="phone.sessions.talk1">Caught in the Rain / Quantum Spotlight</small></div>
+                    <div class="sub-item"><strong>AWSome Women Summit LATAM</strong><small data-i18n="phone.sessions.talk2">From Classical to Quantum with AWS</small></div>
 
-                    <h3>Watch Previous Sessions</h3>
+                    <h3 data-i18n="phone.sessions.watchTitle">Watch Previous Sessions</h3>
                     <div class="video-links">
                         <button class="video-link" type="button" data-video-id="7eqiYFtCYVI" data-video-title="#CertOps: Clase #1 - Intro. a la Nube y AWS">
-                            <small>SBG UNAM</small><strong>#CertOps: Clase #1 - Intro. a la Nube y AWS</strong><span>Open session ↗</span>
+                            <small>SBG UNAM</small><strong>#CertOps: Clase #1 - Intro. a la Nube y AWS</strong><span data-i18n="phone.sessions.openSession">Open session ↗</span>
                         </button>
                         <button class="video-link" type="button" data-video-id="MkO32Tm_kIo" data-video-title="Clase 8: IA Generativa Sin Codigo: Crea Apps Inteligentes con PartyRock">
-                            <small>UG PLAYA VICENTE</small><strong>Clase 8: IA Generativa Sin Codigo: Crea Apps Inteligentes con PartyRock</strong><span>Open session ↗</span>
+                            <small>UG PLAYA VICENTE</small><strong>Clase 8: IA Generativa Sin Codigo: Crea Apps Inteligentes con PartyRock</strong><span data-i18n="phone.sessions.openSession">Open session ↗</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Contacto -->
+                <!-- Contacto — reemplazado sub-item+a por contact-link para evitar overlay en Firefox -->
                 <div id="menu-contact" class="content-section">
-                    <button class="back-btn" type="button" data-phone-section="home">[x] RETURN</button>
+                    <button class="back-btn" type="button" data-phone-section="home" data-i18n="phone.back.home">[x] RETURN</button>
                     <h2>LINK_TREE</h2>
-                    <p>Let's connect and build the future of cloud & quantum.</p>
-                    <a href="CV/Lagunas_Joselyn_CV_AI_Native-2.pdf" download class="cv-btn">📄 DESCARGAR CV</a>
-                    <div class="sub-item"><a href="https://github.com/Shel-y" target="_blank" rel="noopener" style="color:var(--pink);text-decoration:none;display:block;font-weight:bold;">&gt; GITHUB // Code</a></div>
-                    <div class="sub-item"><a href="https://www.linkedin.com/in/joselyn-lagunas/" target="_blank" rel="noopener" style="color:var(--pink);text-decoration:none;display:block;font-weight:bold;">&gt; LINKEDIN // Connect & Highlights</a></div>
-                    <div class="sub-item"><a href="https://instagram.com/shel.lagunas" target="_blank" rel="noopener" style="color:var(--pink);text-decoration:none;display:block;font-weight:bold;">&gt; INSTAGRAM // Community</a></div>
-                    <div class="sub-item"><a href="mailto:she.lagunas@gmail.com" style="color:var(--pink);text-decoration:none;display:block;font-weight:bold;">&gt; EMAIL // Direct</a></div>
+                    <p data-i18n="phone.contact.p1">Let's connect and build the future of cloud &amp; quantum.</p>
+                    <a href="CV/Lagunas_Joselyn_CV_AI_Native-2.pdf" download="" class="cv-btn" data-i18n="phone.contact.cv">📄 DOWNLOAD CV</a>
+                    <a href="https://github.com/Shel-y" target="_blank" rel="noopener" class="phone-contact-link">&gt; GITHUB // Code</a>
+                    <a href="https://www.linkedin.com/in/joselyn-lagunas/" target="_blank" rel="noopener" class="phone-contact-link">&gt; LINKEDIN // Connect &amp; Highlights</a>
+                    <a href="https://instagram.com/shel.lagunas" target="_blank" rel="noopener" class="phone-contact-link">&gt; INSTAGRAM // Community</a>
+                    <a href="mailto:she.lagunas@gmail.com" class="phone-contact-link">&gt; EMAIL // Direct</a>
                 </div>
 
             </div>
@@ -644,45 +1097,67 @@
         <div id="classic-progress" aria-hidden="true"></div>
         <canvas id="classic-bg-canvas" aria-hidden="true"></canvas>
 
+        <div class="classic-layout-wrapper">
         <nav class="classic-nav" aria-label="Section navigation">
-            <a href="#c-about">01. About</a>
-            <a href="#c-focus">02. Tech Focus</a>
-            <a href="#c-experience">03. R&D</a>
-            <a href="#c-speaking">04. Talks</a>
-            <a href="#c-spectrum">05. AWSpectrum</a>
-            <a href="#c-impact">06. Impact</a>
-            <a href="#c-projects">07. Projects</a>
-            <a href="#c-community">08. Community</a>
-            <a href="#c-contact">09. Contact</a>
+            <div class="classic-nav-inner">
+                <ul class="classic-nav-links" id="classic-nav-links">
+                    <li><a href="#c-about" data-i18n="classic_nav_links_a_0"></a></li>
+                    <li><a href="#c-focus" data-i18n="classic_nav_links_a_1"></a></li>
+                    <li><a href="#c-experience" data-i18n="classic_nav_links_a_2"></a></li>
+                    <li><a href="#c-speaking" data-i18n="classic_nav_links_a_3"></a></li>
+                    <li><a href="#c-spectrum" data-i18n="classic_nav_links_a_4"></a></li>
+                    <li><a href="#c-impact" data-i18n="classic_nav_links_a_5"></a></li>
+                    <li><a href="#c-projects" data-i18n="classic_nav_links_a_6"></a></li>
+                    <li><a href="#c-community" data-i18n="classic_nav_links_a_7"></a></li>
+                    <li><a href="#c-contact" data-i18n="classic_nav_links_a_8"></a></li>
+                </ul>
+                <button class="nav-hamburger" id="nav-hamburger" type="button" aria-controls="classic-nav-menu" aria-expanded="false" aria-label="Open navigation menu">☰ MENU</button>
+            </div>
+            <div class="classic-nav-menu" id="classic-nav-menu" role="menu">
+                <a href="#c-about" role="menuitem" data-i18n="classic_nav_menu_a_0"></a>
+                <a href="#c-focus" role="menuitem" data-i18n="classic_nav_menu_a_1"></a>
+                <a href="#c-experience" role="menuitem" data-i18n="classic_nav_menu_a_2"></a>
+                <a href="#c-speaking" role="menuitem" data-i18n="classic_nav_menu_a_3"></a>
+                <a href="#c-spectrum" role="menuitem" data-i18n="classic_nav_menu_a_4"></a>
+                <a href="#c-impact" role="menuitem" data-i18n="classic_nav_menu_a_5"></a>
+                <a href="#c-projects" role="menuitem" data-i18n="classic_nav_menu_a_6"></a>
+                <a href="#c-community" role="menuitem" data-i18n="classic_nav_menu_a_7"></a>
+                <a href="#c-contact" role="menuitem" data-i18n="classic_nav_menu_a_8"></a>
+            </div>
         </nav>
 
         <main class="classic-shell">
             <header class="classic-hero">
-                <p class="kicker" data-i18n="hero.kicker">&gt;_ Software & QAI Solutions Engineer</p>
-                <h1 data-i18n="hero.title">I build bridges between Cloud, Quantum, and the people learning to use them.</h1>
-                <p data-i18n="hero.description">AWS Community Builder, technical speaker, and founder of AWSpectrum LATAM. I explore quantum computing, multi-agent AI workflows, and cloud architectures through a practical, human lens.</p>
+                <p class="kicker" data-i18n="classic_hero_kicker_0"></p>
+                
+                
+                <h1 data-i18n="classic_hero_h1_0"></h1>
+                <div class="floating-sticker sticker-1">✦ AI NATIVE</div>
+                <div class="floating-sticker sticker-2">☁ AWS CB</div>
+                <div class="floating-sticker sticker-3">⚛ QUANTUM</div>
+                <p data-i18n="classic_hero_p_not_kicker_0"></p>
                 <div class="cta-row">
-                    <a class="classic-cta solid" data-i18n="hero.ctaProjects" href="#c-projects">View pinned projects</a>
-                    <a class="classic-cta" data-i18n="hero.ctaCv" href="CV/Lagunas_Joselyn_CV_AI_Native-2.pdf" download>Download CV</a>
+                    <a class="classic-cta solid" data-i18n="classic_hero_cta_row_a_0" href="#c-projects"></a>
+                    <a class="classic-cta" data-i18n="classic_hero_cta_row_a_1" href="CV/Lagunas_Joselyn_CV_AI_Native-2.pdf" download=""></a>
                 </div>
                 <div class="proof-strip" aria-label="Professional highlights">
                     <div class="proof-item"><b data-i18n="proof.awsValue">AWS</b><span data-i18n="proof.awsLabel">Community Builder · Machine Learning</span></div>
                     <div class="proof-item"><b data-i18n="proof.talksValue">10+</b><span data-i18n="proof.talksLabel">Technical talks across Mexico</span></div>
-                    <div class="proof-item"><b data-i18n="proof.researchValue">Japan</b><span data-i18n="proof.researchLabel">International R&D experience</span></div>
-                    <div class="proof-item"><b data-i18n="proof.communityValue">AWSpectrum</b><span data-i18n="proof.communityLabel">Founder & Community Lead</span></div>
+                    <div class="proof-item"><b data-i18n="proof.researchValue">Japan</b><span data-i18n="proof.researchLabel">International R&amp;D experience</span></div>
+                    <div class="proof-item"><b data-i18n="proof.communityValue">AWSpectrum</b><span data-i18n="proof.communityLabel">Founder &amp; Community Lead</span></div>
                 </div>
             </header>
 
             <section id="c-about" class="classic-section">
-                <h2>01 — MY JOURNEY</h2>
-                <p class="lede">Mi trayectoria no ha sido lineal, y precisamente ahí está una de mis mayores fortalezas. Comencé en Ingeniería en Metalurgia y Materiales, desarrollando una forma de pensar orientada a procesos. Después decidí moverme hacia Ingeniería en Desarrollo de Software en la UVEG.</p>
-                <p class="lede">Mi curiosidad me llevó por: <strong>VR/AR → Neurotechnology → Cloud → AI → Quantum Computing → Community Building</strong>. No veo estos campos como caminos separados, sino como distintas formas de entender y construir sistemas. Mi perfil se ha construido precisamente en las intersecciones.</p>
-                <a class="classic-cta" href="CV/Lagunas_Joselyn_CV_AI_Native-2.pdf" download>📄 Descargar Currículum Vitae</a>
+                <h2 data-i18n="c_about_h2_0"></h2>
+                <p class="lede" data-i18n="c_about_lede_0"></p>
+                <p class="lede" data-i18n="c_about_lede_1">Mi curiosidad me llevó por: <strong>VR/AR → Neurotechnology → Cloud → AI → Quantum Computing → Community Building</strong>. No veo estos campos como caminos separados, sino como distintas formas de entender y construir sistemas. Mi perfil se ha construido precisamente en las intersecciones.</p>
+                <a class="classic-cta" href="CV/Lagunas_Joselyn_CV_AI_Native-2.pdf" download="" data-i18n="contact.cv">📄 Descargar Currículum Vitae</a>
             </section>
 
             <aside class="action-band">
-                <p><strong>¿Quieres conocer el recorrido completo?</strong><span>Explora cómo conecto investigación, software y tecnologías emergentes.</span></p>
-                <a class="classic-cta" href="#c-experience">Ver mi experiencia ↗</a>
+                <p><strong data-i18n="action_band_strong_0"></strong><span data-i18n="action_band_p_span_0"></span></p>
+                <a class="classic-cta" href="#c-experience" data-i18n="action_band_classic_cta_0"></a>
             </aside>
 
             <section class="availability-panel" aria-labelledby="availability-title">
@@ -698,35 +1173,39 @@
             </section>
 
             <section id="c-focus" class="classic-section">
-                <h2>02 — WHAT I BUILD & HOW I LEARN</h2>
-                <p class="lede">No intento aprender una tecnología únicamente por acumular herramientas. I don't follow a single technology. I follow problems. Mi proceso es: Explore → Research → Build → Break → Understand → Share.</p>
+                <h2 data-i18n="c_focus_h2_0"></h2>
+                <p class="lede" data-i18n="c_focus_lede_0"></p>
 
                 <div class="github-highlight">
                     <div>
-                        <p><strong>Technical Stack & Learning Goals</strong></p>
+                        <p><strong>Technical Stack &amp; Learning Goals</strong></p>
                         <span class="tech-tags">Python / Rust / Flutter / AWS / LangChain / Quantum (Amazon Braket) / Local AI</span>
                     </div>
                     <a class="classic-cta solid" href="https://github.com/Shel-y" target="_blank">Visit official GitHub profile</a>
                 </div>
 
-                <ul class="timeline-list">
-                    <li>
+                
+                <div class="tech-flow">
+                    <div class="flow-step">
+                        <div class="flow-icon">⚛</div>
                         <h3>Quantum Computing</h3>
-                        <p>Explorando computación cuántica orientada a desarrolladores. Conectando Classical Computing + Cloud + AI + Quantum. Trabajo con algoritmos simulados, QAOA, problemas de optimización y busco hacer accesible esta tecnología para quienes vienen del mundo del software.</p>
-                    </li>
-                    <li>
-                        <h3>Cloud & AWS</h3>
-                        <p>Especialización en AWS architecture (Amazon S3, Braket), cloud-based experimentation, serverless / distributed architectures, y flujos de trabajo híbridos clásico-cuánticos.</p>
-                    </li>
-                    <li>
-                        <h3>AI & Machine Learning</h3>
-                        <p>Enfoque en Generative AI, exploración de Agentic AI (LangChain/LangGraph), modelos locales con Ollama, y el cruce de AI con optimización matemática.</p>
-                    </li>
-                </ul>
+                        <p>Explorando computación cuántica orientada a desarrolladores. Conectando Classical Computing + Cloud + AI + Quantum.</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-icon">☁</div>
+                        <h3>Cloud &amp; AWS</h3>
+                        <p>Especialización en AWS architecture, serverless, y flujos de trabajo híbridos clásico-cuánticos en la nube.</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-icon">🧠</div>
+                        <h3>AI &amp; ML</h3>
+                        <p>Enfoque en Generative AI, exploración de Agentic AI, modelos locales, y el cruce de AI con optimización.</p>
+                    </div>
+                </div>
             </section>
 
             <section id="c-experience" class="classic-section">
-                <h2>03 — INTERNATIONAL R&D EXPERIENCE</h2>
+                <h2 data-i18n="c_experience_h2_0"></h2>
                 <ul class="timeline-list">
                     <li>
                         <h3>Mirai Innovation Research Institute</h3>
@@ -736,182 +1215,222 @@
                 </ul>
             </section>
 
+            
             <section id="c-speaking" class="classic-section">
-                <h2>04 — TECHNICAL SPEAKER & MENTOR</h2>
-                <p class="lede">He participado como speaker en más de 10 eventos técnicos en distintas ciudades y estados de México, conectando AWS, Cloud, AI, Quantum Computing, Software Development y Emerging Technologies.</p>
-                <div class="profile-grid">
-                    <article class="profile-block">
-                        <strong>AWS Summit Mexico 2026</strong>
-                        <p>“Atrapado en la lluvia: Tu ruta inteligente en segundos”: un proyecto de AI + optimization + Amazon Braket aplicado a inundaciones urbanas.</p>
+                <h2 data-i18n="c_speaking_h2_0">PUBLIC SPEAKING & MEDIA</h2>
+                <p class="lede" data-i18n="c_speaking_lede_0">I share my knowledge on Cloud, AI, and Quantum computing at major technical events.</p>
+                
+                <div class="crew-carousel">
+                    <!-- Event 1 -->
+                    <article class="crew-card">
+                        <div class="crew-card-content">
+                            <span class="crew-badge">Conference</span>
+                            <h3 data-i18n="c_speaking_profile_block_stron_0">AWS Summit Mexico 2026</h3>
+                            <p>Caught in the Rain: Quantum Spotlight. Technical speaker discussing hybrid AI and Quantum workflows on Amazon Braket.</p>
+                        </div>
                     </article>
-                    <article class="profile-block">
-                        <strong>Quantum Spotlight</strong>
-                        <p>Seleccionada para llevar computación cuántica a una audiencia de desarrolladores y cloud practitioners.</p>
+                    
+                    <!-- Event 2 -->
+                    <article class="crew-card">
+                        <div class="crew-card-content">
+                            <span class="crew-badge">Community Lead</span>
+                            <h3 data-i18n="c_speaking_profile_block_stron_1">FARO Aragón</h3>
+                            <p>Host and organizer for AWSpectrum LATAM events. Building safe spaces for diverse technical talent to grow.</p>
+                        </div>
                     </article>
-                    <article class="profile-block">
-                        <strong>AWSome Women Summit LATAM</strong>
-                        <p>“De lo Clásico a lo Cuántico con AWS”, una charla sobre arquitecturas híbridas y nuevas formas de construir en la nube.</p>
+
+                    <!-- Event 3 -->
+                    <article class="crew-card">
+                        <div class="crew-card-content">
+                            <span class="crew-badge">Summit</span>
+                            <h3 data-i18n="c_speaking_profile_block_stron_2">AWSome Women Summit</h3>
+                            <p>From Classical to Quantum with AWS. Keynote on the transition of software paradigms and the future of computation.</p>
+                        </div>
+                    </article>
+                    
+                    <!-- Event 4 -->
+                    <article class="crew-card">
+                        <div class="crew-card-content">
+                            <span class="crew-badge">Bootcamp</span>
+                            <h3 data-i18n="c_speaking_timeline_list_h3_0">AWS Builders Bootcamp</h3>
+                            <p>Mentorship and translation of complex technical concepts for 50+ students starting in cloud infrastructure.</p>
+                        </div>
                     </article>
                 </div>
-                <ul class="timeline-list" style="margin-top:24px;">
-                    <li><h3>Teaching & Technical Communication</h3><p>Fui instructora de programación para más de 50 estudiantes. Diseño workshops, explico conceptos complejos, adapto contenido a distintos niveles y acompaño procesos de aprendizaje.</p></li>
-                    <li><h3>Mentorship & Leadership</h3><p>He participado como Technical Mentor, Workshop Facilitator, Research Project Lead, Community Lead, Speaker y Programming Instructor. Mi objetivo es acompañar a alguien de “no sé cómo funciona” a “ya puedo construir algo con esto”.</p></li>
-                </ul>
             </section>
 
             <section id="c-spectrum" class="classic-section">
-                <h2>05 — AWSPECTRUM LATAM</h2>
+                <h2 data-i18n="c_spectrum_h2_0"></h2>
                 <article class="project-card spectrum-feature">
-                    <span class="spectrum-mark">FOUNDER & COMMUNITY LEAD</span>
-                    <h3>Construir referentes también es construir infraestructura.</h3>
-                    <p>AWSpectrum LATAM es la primera comunidad de mujeres enfocada en AWS en Latinoamérica. La fundé para hacer visible al talento diverso y crear espacios donde más personas puedan aprender, participar, hablar y liderar.</p>
-                    <p>Coordino una comunidad multidisciplinaria con personas en tecnología, contenido, diseño, web, promoción, reclutamiento, logística, staff y alianzas. No se trata solamente de organizar eventos: estoy construyendo identidad, estructura, equipos, comunicación y estrategia desde cero.</p>
-                    <p><em>“La representación cambia lo que las personas creen que pueden llegar a ser.”</em></p>
+                    <span class="spectrum-mark" data-i18n="c_spectrum_spectrum_mark_0"></span>
+                    <h3 data-i18n="c_spectrum_project_card_h3_0"></h3>
+                    <p data-i18n="c_spectrum_project_card_p_0"></p>
+                    <p data-i18n="c_spectrum_project_card_p_1"></p>
+                    <p data-i18n="c_spectrum_project_card_p_2"><em>“La representación cambia lo que las personas creen que pueden llegar a ser.”</em></p>
                 </article>
             </section>
 
             <aside class="action-band">
-                <p><strong>Las comunidades también se construyen.</strong><span>AWSpectrum LATAM nació para convertir representación en oportunidades concretas.</span></p>
-                <a class="classic-cta solid" href="https://www.instagram.com/awspectrum.latam/" target="_blank" rel="noopener">Conocer AWSpectrum ↗</a>
+                <p><strong data-i18n="action_band_strong_1"></strong><span data-i18n="action_band_p_span_1"></span></p>
+                <a class="classic-cta solid" href="https://www.instagram.com/awspectrum.latam/" target="_blank" rel="noopener" data-i18n="action_band_classic_cta_1"></a>
             </aside>
 
             <section id="c-impact" class="classic-section">
-                <h2>06 — RECOGNITION & IMPACT</h2>
-                <p class="lede">No quiero que mi portafolio solamente diga qué tecnologías utilizo. Quiero mostrar qué he hecho con ellas y a quiénes he ayudado a acercarse a ellas.</p>
+                <h2 data-i18n="c_impact_h2_0"></h2>
+                <p class="lede" data-i18n="c_impact_lede_0"></p>
                 <div class="impact-grid">
-                    <div class="impact-stat" data-stat-value="10" data-stat-suffix="+"><b>0+</b><span>Technical talks across Mexico</span></div>
-                    <div class="impact-stat" data-stat-value="50" data-stat-suffix="+"><b>0+</b><span>Programming students</span></div>
-                    <div class="impact-stat" data-stat-value="20" data-stat-suffix="+"><b>0+</b><span>Community collaborators and volunteers</span></div>
-                    <div class="impact-stat" data-stat-label="Japan"><b>Japan</b><span>International R&D experience in Osaka</span></div>
-                    <div class="impact-stat" data-stat-label="IEEE"><b>IEEE</b><span>QSEEC26 accepted poster</span></div>
-                    <div class="impact-stat" data-stat-label="AWS"><b>AWS</b><span>Community Builder, Machine Learning, second consecutive year</span></div>
+                    <div class="impact-stat" data-stat-value="10" data-stat-suffix="+"><b>0+</b><span data-i18n="c_impact_impact_stat_span_0"></span></div>
+                    <div class="impact-stat" data-stat-value="50" data-stat-suffix="+"><b>0+</b><span data-i18n="c_impact_impact_stat_span_1"></span></div>
+                    <div class="impact-stat" data-stat-value="20" data-stat-suffix="+"><b>0+</b><span data-i18n="c_impact_impact_stat_span_2"></span></div>
+                    <div class="impact-stat" data-stat-label="Japan"><b>Japan</b><span data-i18n="c_impact_impact_stat_span_3"></span></div>
+                    <div class="impact-stat" data-stat-label="IEEE"><b>IEEE</b><span data-i18n="c_impact_impact_stat_span_4"></span></div>
+                    <div class="impact-stat" data-stat-label="AWS"><b>AWS</b><span data-i18n="c_impact_impact_stat_span_5"></span></div>
                 </div>
                 <ul class="timeline-list" style="margin-top:24px;">
-                    <li><h3>Recognition & milestones</h3><p>AWS New Voices Alum · Founder of AWSpectrum LATAM · Selected AWS Summit Mexico 2026 Speaker · Quantum Spotlight · Purdue QSTEP2026 accepted · QIntern 2026 Mentor / Project Lead · Technical workshop facilitator.</p></li>
+                    <li><h3 data-i18n="c_impact_timeline_list_h3_0"></h3><p data-i18n="c_impact_timeline_list_p_0"></p></li>
                 </ul>
             </section>
 
             <aside class="action-band">
-                <p><strong>Ideas que se pueden construir.</strong><span>Mira los proyectos donde estas tecnologías toman forma.</span></p>
-                <a class="classic-cta" href="#c-projects">Explorar proyectos ↗</a>
+                <p><strong data-i18n="action_band_strong_2"></strong><span data-i18n="action_band_p_span_2"></span></p>
+                <a class="classic-cta" href="#c-projects" data-i18n="action_band_classic_cta_2"></a>
             </aside>
 
-            <section id="c-projects" class="classic-section">
-                <h2 data-i18n="projects.title">07 — CASE STUDIES</h2>
-                <p class="lede" data-i18n="projects.intro">Selected work showing how I move from a problem to a working system.</p>
-                <div class="case-study-list">
-                    <article class="case-study">
-                        <div><span class="case-kicker" data-i18n="case.sorority.kicker">CASE STUDY / 01 · SOCIAL SAFETY</span><h3>Sorority</h3><p><strong data-i18n="case.problem">Problem:</strong> <span data-i18n="case.sorority.problem">How can collective safety and alert propagation be understood through an interactive system?</span></p><p><strong data-i18n="case.role">My role:</strong> <span data-i18n="case.sorority.role">I designed the simulation and connected a Rust backend to a Flutter interface through FFI.</span></p><div class="case-actions"><a class="classic-cta solid" href="https://github.com/Shel-y/Sorority" target="_blank" rel="noopener" data-i18n="case.github">View GitHub ↗</a></div></div>
-                        <div class="case-meta"><strong data-i18n="case.stack">TECH STACK</strong><span>Rust · Flutter · FFI · 3D visualization</span><strong data-i18n="case.outcome">OUTCOME</strong><span data-i18n="case.sorority.outcome">A visual trust network for exploring safety and alerts.</span></div>
+            
+            <section id="c-projects" class="classic-section reveal-ready">
+                <h2 data-i18n="c_projects_h2_0">PROJECTS & ARCHITECTURE</h2>
+                
+                <div class="project-timeline">
+                    <!-- Project 1 (Left) -->
+                    <article class="timeline-card-container left">
+                        <div class="timeline-card">
+                            <div class="card-window-header"><span>PROJECT.EXE</span><span>_ [] X</span></div>
+                            <div class="card-inner bg-lime">
+                                <span class="bento-kicker text-black">COMMUNITY & LEADERSHIP</span>
+                                <h3 class="bento-title text-black">AWSpectrum LATAM</h3>
+                                <p class="bento-desc text-black">Founded and grew the AWSpectrum LATAM community. Led major technical events at FARO Aragón.</p>
+                                <a class="classic-cta solid" href="#c-community" style="width: max-content;">Explore Impact ↗</a>
+                            </div>
+                        </div>
                     </article>
-                    <article class="case-study">
-                        <div><span class="case-kicker" data-i18n="case.traffic.kicker">CASE STUDY / 02 · AI + QUANTUM</span><h3>Traffic Rain AI</h3><p><strong data-i18n="case.problem">Problem:</strong> <span data-i18n="case.traffic.problem">How can people find safer routes during urban flooding?</span></p><p><strong data-i18n="case.role">My role:</strong> <span data-i18n="case.traffic.role">I built the hybrid workflow combining flood data, machine learning, graph algorithms and Amazon Braket.</span></p><div class="case-actions"><a class="classic-cta solid" href="https://github.com/Shel-y/traffic-rain-ai" target="_blank" rel="noopener" data-i18n="case.github">View GitHub ↗</a></div></div>
-                        <div class="case-meta"><strong data-i18n="case.stack">TECH STACK</strong><span>Python · AWS Braket · ML · Graph algorithms</span><strong data-i18n="case.outcome">OUTCOME</strong><span data-i18n="case.traffic.outcome">A practical bridge between classical optimization and quantum experimentation.</span></div>
+
+                    <!-- Project 2 (Right) -->
+                    <article class="timeline-card-container right">
+                        <div class="timeline-card">
+                            <div class="card-window-header"><span>PROJECT.EXE</span><span>_ [] X</span></div>
+                            <div class="card-inner bg-lilac">
+                                <span class="bento-kicker text-white">AI + QUANTUM</span>
+                                <h3 class="bento-title text-white">Traffic Rain AI</h3>
+                                <p class="bento-desc text-white">A hybrid workflow combining flood data, machine learning, graph algorithms, and quantum optimization.</p>
+                                <a class="classic-cta" style="background:#111;color:#fff;" href="https://github.com/Shel-y/traffic-rain-ai" target="_blank">View GitHub ↗</a>
+                            </div>
+                        </div>
                     </article>
-                    <article class="case-study">
-                        <div><span class="case-kicker" data-i18n="case.qdrift.kicker">CASE STUDY / 03 · DEVELOPER TOOLING</span><h3>Q-Drift CLI</h3><p><strong data-i18n="case.problem">Problem:</strong> <span data-i18n="case.qdrift.problem">How can probabilistic failure in distributed logic paths become measurable?</span></p><p><strong data-i18n="case.role">My role:</strong> <span data-i18n="case.qdrift.role">I created a command-line tool using Shannon entropy and noise models to make drift inspectable.</span></p><div class="case-actions"><a class="classic-cta solid" href="https://github.com/Shel-y/q-drift" target="_blank" rel="noopener" data-i18n="case.github">View GitHub ↗</a></div></div>
-                        <div class="case-meta"><strong data-i18n="case.stack">TECH STACK</strong><span>Python · CLI · Shannon entropy · Noise models</span><strong data-i18n="case.outcome">OUTCOME</strong><span data-i18n="case.qdrift.outcome">A focused developer tool for reasoning about probabilistic systems.</span></div>
+
+                    <!-- Project 3 (Left) -->
+                    <article class="timeline-card-container left">
+                        <div class="timeline-card">
+                            <div class="card-window-header"><span>PROJECT.EXE</span><span>_ [] X</span></div>
+                            <div class="card-inner bg-blue">
+                                <span class="bento-kicker text-white">MULTI-AGENT AI</span>
+                                <h3 class="bento-title text-white">NeuroCopilot</h3>
+                                <p class="bento-desc text-white">An experimental interface for multi-agent structured reasoning, designed to transform simulated neural signals into structured tasks.</p>
+                                <a class="classic-cta" style="background:#111;color:#fff;" href="https://github.com/Shel-y/Neurocopilot" target="_blank">View GitHub ↗</a>
+                            </div>
+                        </div>
                     </article>
-                    <article class="case-study">
-                        <div><span class="case-kicker" data-i18n="case.neuro.kicker">CASE STUDY / 04 · MULTI-AGENT AI</span><h3>NeuroCopilot</h3><p><strong data-i18n="case.problem">Problem:</strong> <span data-i18n="case.neuro.problem">How can simulated neural signals be transformed into structured reasoning?</span></p><p><strong data-i18n="case.role">My role:</strong> <span data-i18n="case.neuro.role">I designed a multi-agent workflow using LangChain, LangGraph and Gradio.</span></p><div class="case-actions"><a class="classic-cta solid" href="https://github.com/Shel-y/Neurocopilot" target="_blank" rel="noopener" data-i18n="case.github">View GitHub ↗</a></div></div>
-                        <div class="case-meta"><strong data-i18n="case.stack">TECH STACK</strong><span>LangChain · LangGraph · Gradio · Python</span><strong data-i18n="case.outcome">OUTCOME</strong><span data-i18n="case.neuro.outcome">An experimental interface for multi-agent structured reasoning.</span></div>
-                    </article>
-                </div>
-                <div class="project-grid legacy-project-grid">
-                    <article class="project-card">
-                        <h3>Sorority</h3>
-                        <p class="stack">Rust / Flutter / 3D Trust Network</p>
-                        <p>Decentralized 3D trust network combining a Rust simulation backend with a Flutter UI via FFI to visualize collective safety and alert propagation.</p>
-                        <a href="https://github.com/Shel-y/Sorority" target="_blank">GitHub Repo <svg height="14" width="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg></a>
-                    </article>
-                    <article class="project-card">
-                        <h3>Traffic Rain AI</h3>
-                        <p class="stack">Python / AWS Braket / Machine Learning</p>
-                        <p>Hybrid classical-quantum system processing flooding data using machine learning, graph algorithms, y Amazon Braket para la optimización de rutas urbanas durante contingencias en CDMX.</p>
-                        <a href="https://github.com/Shel-y/traffic-rain-ai" target="_blank">GitHub Repo <svg height="14" width="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg></a>
-                    </article>
-                    <article class="project-card">
-                        <h3>Q-Drift CLI</h3>
-                        <p class="stack">Python / Shannon Entropy</p>
-                        <p>Command-line tool measuring probabilistic failure rates in distributed logic paths using Shannon entropy and noise models.</p>
-                        <a href="https://github.com/Shel-y/q-drift" target="_blank">GitHub Repo <svg height="14" width="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg></a>
-                    </article>
-                    <article class="project-card">
-                        <h3>NeuroCopilot</h3>
-                        <p class="stack">LangChain / Multi-agent</p>
-                        <p>Multi-agent AI application built with LangChain, LangGraph, and Gradio to process simulated neural signals and generate structured reasoning.</p>
-                        <a href="https://github.com/Shel-y/Neurocopilot" target="_blank">GitHub Repo <svg height="14" width="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg></a>
+
+                    <!-- Project 4 (Right) -->
+                    <article class="timeline-card-container right">
+                        <div class="timeline-card">
+                            <div class="card-window-header"><span>PROJECT.EXE</span><span>_ [] X</span></div>
+                            <div class="card-inner bg-lime">
+                                <span class="bento-kicker text-black">CLI TOOLING</span>
+                                <h3 class="bento-title text-black">Q-Drift</h3>
+                                <p class="bento-desc text-black">A command-line tool using Shannon entropy and noise models to make probabilistic failure measurable.</p>
+                                <a class="classic-cta" style="background:#111;color:#fff;" href="https://github.com/Shel-y/q-drift" target="_blank">View GitHub ↗</a>
+                            </div>
+                        </div>
                     </article>
                 </div>
             </section>
 
+
             <section id="c-community" class="classic-section">
-                <h2>08 — COMMUNITY LEADERSHIP & SPEAKING</h2>
+                <h2 data-i18n="c_community_h2_0"></h2>
                 <div class="project-grid" style="margin-bottom: 24px;">
                     <article class="project-card" style="border-color: var(--pink);">
                         <h3>AWSpectrum LATAM</h3>
-                        <p class="stack">Founder & Community Lead</p>
-                        <p>Primera comunidad de mujeres enfocada en AWS en Latinoamérica. La comunidad busca hacer visible al talento diverso dentro de tecnología. Coordino equipos de diseño, contenido, alianzas y logística construyendo espacios seguros de aprendizaje.</p>
-                        <p style="font-size:12px; font-style:italic;">"Creo que la representación cambia lo que las personas creen que pueden llegar a ser."</p>
+                        <p class="stack" data-i18n="c_community_div_project_card_s_0"></p>
+                        <p data-i18n="c_community_div_project_card_p_0"></p>
+                        <p style="font-size:12px; font-style:italic;" data-i18n="c_community_div_project_card_p_1"></p>
                     </article>
                     <article class="project-card">
-                        <h3>Teaching & Mentorship</h3>
-                        <p class="stack">Instructor & Technical Mentor</p>
-                        <p>Fui instructora de programación para más de 50 estudiantes en programas como PILARES. Diseñando workshops y traduciendo conceptos complejos. Como mentora (AWS Builders, QIntern), me enfoco en llevar a la gente de "no sé cómo funciona" a "ya puedo construir con esto".</p>
+                        <h3>Teaching &amp; Mentorship</h3>
+                        <p class="stack" data-i18n="c_community_div_project_card_s_1"></p>
+                        <p data-i18n="c_community_div_project_card_p_2"></p>
                     </article>
                 </div>
 
-                <h3>Featured Sessions</h3>
+                <h3 data-i18n="c_community_h3_0"></h3>
                 <ul class="session-list">
                     <li>
-                        <h3>AWS Summit Mexico 2026</h3>
-                        <p class="venue">Atrapado en la lluvia / Spotlight Quantum Path</p>
-                        <p>Presentación de "Atrapado en la lluvia: Tu ruta inteligente en segundos" (AI + optimization + Braket) y participación en el Quantum Spotlight para llevar la computación cuántica a desarrolladores.</p>
+                        <h3 data-i18n="c_community_session_list_li_h3_0"></h3>
+                        <p class="venue" data-i18n="c_community_session_list_venue_0"></p>
+                        <p data-i18n="c_community_session_list_li_p__0"></p>
                     </li>
                     <li>
-                        <h3>AWSome Women Summit LATAM</h3>
-                        <p class="venue">De lo Clásico a lo Cuántico con AWS</p>
-                        <p>Conferencia sobre arquitecturas de computación híbrida en la nube.</p>
+                        <h3 data-i18n="c_community_session_list_li_h3_1"></h3>
+                        <p class="venue" data-i18n="c_community_session_list_venue_1"></p>
+                        <p data-i18n="c_community_session_list_li_p__1"></p>
                     </li>
                 </ul>
 
                 <div class="archive-intro"><div><h3 data-i18n="talks.archiveTitle">Talks archive</h3><p data-i18n="talks.archiveIntro">Technical sessions where Cloud, AI and Quantum become understandable, practical and shareable.</p></div><a class="classic-cta" href="https://www.youtube.com/@Shel-y" target="_blank" rel="noopener" data-i18n="talks.channel">Open YouTube ↗</a></div>
                 <div class="video-links">
-                    <article class="video-link"><div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/7eqiYFtCYVI" title="#CertOps: Clase #1 - Intro. a la Nube y AWS" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><small>SBG UNAM · Cloud & AWS · Clase técnica</small><strong>#CertOps: Clase #1 - Intro. a la Nube y AWS</strong></article>
-                    <article class="video-link"><div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/MkO32Tm_kIo" title="Clase 8: IA Generativa Sin Codigo: Crea Apps Inteligentes con PartyRock" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><small>UG Playa Vicente · IA Generativa · PartyRock</small><strong>Clase 8: IA Generativa Sin Codigo: Crea Apps Inteligentes con PartyRock</strong></article>
+                    <article class="video-link"><div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/7eqiYFtCYVI" title="#CertOps: Clase #1 - Intro. a la Nube y AWS" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div><small data-i18n="c_community_video_links_articl_0"></small><strong data-i18n="c_community_video_links_articl_0"></strong></article>
+                    <article class="video-link"><div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/MkO32Tm_kIo" title="Clase 8: IA Generativa Sin Codigo: Crea Apps Inteligentes con PartyRock" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div><small data-i18n="c_community_video_links_articl_1"></small><strong data-i18n="c_community_video_links_articl_1"></strong></article>
                 </div>
 
                 <p style="margin-top:20px; font-weight:bold; color:var(--text-soft);">Milestones: AWS Community Builder (Machine Learning, 2nd yr) | AWS New Voices Alum | IEEE QSEEC26 Accepted Poster</p>
             </section>
 
             <section id="c-contact" class="classic-section">
-                <h2>09 — CONTACT</h2>
-                <p class="lede">Let's connect and build the future of cloud & quantum.</p>
+                <h2 data-i18n="c_contact_h2_0"></h2>
+                <p class="lede" data-i18n="c_contact_lede_0"></p>
                 <div class="contact-grid">
-                    <a href="CV/Lagunas_Joselyn_CV_AI_Native-2.pdf" download>&gt; DESCARGAR CV // Resume</a>
-                    <a href="https://github.com/Shel-y" target="_blank" rel="noopener">&gt; GITHUB // Code & Projects</a>
-                    <a href="https://www.linkedin.com/in/joselyn-lagunas/" target="_blank" rel="noopener">&gt; LINKEDIN // Highlights & Connect</a>
-                    <a href="https://instagram.com/shel.lagunas" target="_blank" rel="noopener">&gt; INSTAGRAM // Community updates</a>
-                    <a href="mailto:she.lagunas@gmail.com">&gt; EMAIL // Direct message</a>
+                    <a href="CV/Lagunas_Joselyn_CV_AI_Native-2.pdf" download="" data-i18n="c_contact_a_0"></a>
+                    <a href="https://github.com/Shel-y" target="_blank" rel="noopener" data-i18n="c_contact_a_1"></a>
+                    <a href="https://www.linkedin.com/in/joselyn-lagunas/" target="_blank" rel="noopener" data-i18n="c_contact_a_2"></a>
+                    <a href="https://instagram.com/shel.lagunas" target="_blank" rel="noopener" data-i18n="c_contact_a_3"></a>
+                    <a href="mailto:she.lagunas@gmail.com" data-i18n="c_contact_a_4"></a>
                 </div>
             </section>
         </main>
+    </div>
 
         <footer class="classic-footer">Shel — Mexico City · built with Three.js</footer>
     </div>
 
+    <a id="cv-sticky" href="CV/Lagunas_Joselyn_CV_AI_Native-2.pdf" download="" aria-label="Descargar CV">DESCARGAR CV</a>
+
     <!-- Music Player (SVGs for clean icons, glowing Y2K container) -->
     <div id="music-player">
+        <canvas id="player-character" aria-label="Dancing 3D character"></canvas>
         <div class="track-info">
             <span id="track-title">Loading...</span>
             <span id="track-artist">System</span>
         </div>
+        <div class="player-volume">
+            <label for="volume-control" data-i18n="player.volume">Volume</label>
+            <input id="volume-control" type="range" min="0" max="1" step="0.01" value="0.3" data-i18n-aria-label="player.volume" aria-label="Volume">
+        </div>
         <div class="player-controls">
             <button class="player-btn" id="play-pause-btn" aria-label="Play/Pause Music">
-                <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
             </button>
             <button class="player-btn" id="next-btn" aria-label="Next Track">
-                <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"></path></svg>
             </button>
         </div>
     </div>
@@ -922,7 +1441,7 @@
                 <strong id="video-modal-title">YouTube session</strong>
                 <button id="video-modal-close" class="video-modal-close" type="button" aria-label="Close video">[x] CLOSE</button>
             </div>
-            <div class="video-frame"><iframe id="video-frame" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+            <div class="video-frame"><iframe id="video-frame" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
             <a id="video-external-link" class="classic-cta" href="#" target="_blank" rel="noopener" style="margin-top:12px;">Open directly on YouTube ↗</a>
         </div>
     </div>
@@ -938,1087 +1457,53 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
 
+    
     <script type="module">
-        import * as THREE from 'three';
-        import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
-        import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        // ============================================================
-        // SHARED: audio player, DTMF, pixel trail, mode switching
-        // ============================================================
-        const playlist = [
-            { title: "Ironic", artist: "Shel", src: "./audio/ironic.mp3" },
-            { title: "Lafant", artist: "Shel", src: "./audio/Lafant.mp3" },
-            { title: "Lil", artist: "Shel", src: "./audio/lil.mp3" },
-            { title: "Thinking", artist: "Shel", src: "./audio/thinking.mp3" },
-            { title: "TKOBH", artist: "Shel", src: "./audio/TKOBH.mp3" },
-            { title: "Vintage", artist: "Shel", src: "./audio/vintage.mp3" }
-        ];
-        const audio = new Audio();
-        audio.volume = 0.3;
-        let currentTrackIndex = Math.floor(Math.random() * playlist.length);
-        let isPlaying = false;
-
-        const trackTitleEl = document.getElementById('track-title');
-        const trackArtistEl = document.getElementById('track-artist');
-        const playBtn = document.getElementById('play-pause-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const videoModal = document.getElementById('video-modal');
-        const videoFrame = document.getElementById('video-frame');
-        const videoModalTitle = document.getElementById('video-modal-title');
-        const videoModalClose = document.getElementById('video-modal-close');
-        const videoExternalLink = document.getElementById('video-external-link');
-
-        function closeVideoModal() {
-            videoModal.classList.remove('is-open');
-            videoFrame.src = '';
-        }
-
-        document.querySelectorAll('[data-video-id]').forEach((videoButton) => {
-            videoButton.addEventListener('click', () => {
-                const videoId = videoButton.dataset.videoId;
-                const title = videoButton.dataset.videoTitle;
-                videoModalTitle.textContent = title;
-                videoFrame.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
-                videoExternalLink.href = `https://www.youtube.com/watch?v=${videoId}`;
-                videoModal.classList.add('is-open');
-            });
-        });
-        videoModalClose.addEventListener('click', closeVideoModal);
-        videoModal.addEventListener('click', (event) => {
-            if (event.target === videoModal) closeVideoModal();
-        });
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') closeVideoModal();
-        });
-
-        const svgPlay = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
-        const svgPause = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
-
-        function loadTrack(index) {
-            const track = playlist[index];
-            audio.src = track.src;
-            trackTitleEl.innerText = track.title;
-            trackArtistEl.innerText = track.artist;
-            if (isPlaying) audio.play().catch(() => { });
-        }
-
-        audio.addEventListener('error', () => {
-            trackTitleEl.innerText = 'Audio unavailable';
-            trackArtistEl.innerText = '—';
-        });
-
-        playBtn.addEventListener('click', () => {
-            if (isPlaying) { audio.pause(); playBtn.innerHTML = svgPlay; }
-            else { audio.play().catch(() => { }); playBtn.innerHTML = svgPause; }
-            isPlaying = !isPlaying;
-        });
-
-        nextBtn.addEventListener('click', () => {
-            currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-            loadTrack(currentTrackIndex);
-            if (!isPlaying) { audio.play().catch(() => { }); playBtn.innerHTML = svgPause; isPlaying = true; }
-        });
-        audio.addEventListener('ended', () => nextBtn.click());
-        loadTrack(currentTrackIndex);
-
-        let audioStarted = false;
-        const startAudio = () => {
-            if (!audioStarted) {
-                audio.play().catch(() => { });
-                playBtn.innerHTML = svgPause;
-                isPlaying = true;
-                audioStarted = true;
-                document.removeEventListener('click', startAudio);
-                document.removeEventListener('touchstart', startAudio);
-                document.removeEventListener('keydown', startAudio);
-            }
-        };
-        document.addEventListener('click', startAudio);
-        document.addEventListener('touchstart', startAudio);
-        document.addEventListener('keydown', startAudio);
-
-        let audioCtx = null;
-        function getAudioCtx() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            return audioCtx;
-        }
-        function playDtmfSound() {
-            if (prefersReducedMotion) return;
-            const ctx = getAudioCtx();
-            if (ctx.state === 'suspended') ctx.resume();
-            const osc1 = ctx.createOscillator();
-            const osc2 = ctx.createOscillator();
-            const gainNode = ctx.createGain();
-
-            const freqs = [[697, 1209], [697, 1336], [697, 1477], [770, 1209], [770, 1336], [770, 1477]];
-            const f = freqs[Math.floor(Math.random() * freqs.length)];
-
-            osc1.frequency.value = f[0];
-            osc2.frequency.value = f[1];
-
-            gainNode.gain.setValueAtTime(0, ctx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.01);
-            gainNode.gain.setValueAtTime(0.15, ctx.currentTime + 0.08);
-            gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.1);
-
-            osc1.connect(gainNode);
-            osc2.connect(gainNode);
-            gainNode.connect(ctx.destination);
-
-            osc1.start(); osc2.start();
-            osc1.stop(ctx.currentTime + 0.1); osc2.stop(ctx.currentTime + 0.1);
-        }
-
-        const trailCanvas = document.getElementById('pixel-canvas');
-        const trailCtx = trailCanvas.getContext('2d');
-        let particles = [];
-        const pixelColors = ['#ff66b2', '#b366ff', '#00ffcc', '#ffffff', '#ff99cc'];
-
-        function resizeTrailCanvas() { trailCanvas.width = window.innerWidth; trailCanvas.height = window.innerHeight; }
-        window.addEventListener('resize', resizeTrailCanvas);
-        resizeTrailCanvas();
-
-        function addPixel(x, y) {
-            if (prefersReducedMotion) return;
-            for (let i = 0; i < 2; i++) {
-                particles.push({
-                    x, y, size: Math.random() * 5 + 3,
-                    color: pixelColors[Math.floor(Math.random() * pixelColors.length)],
-                    life: 1, vx: (Math.random() - 0.5) * 1.5, vy: (Math.random() - 0.5) * 1.5
-                });
-            }
-        }
-        window.addEventListener('mousemove', (e) => addPixel(e.clientX, e.clientY));
-        window.addEventListener('touchmove', (e) => {
-            if (e.touches.length > 0) addPixel(e.touches[0].clientX, e.touches[0].clientY);
-        });
-
-        function animatePixels() {
-            trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
-            for (let i = particles.length - 1; i >= 0; i--) {
-                let p = particles[i];
-                p.x += p.vx; p.y += p.vy; p.life -= 0.025;
-                if (p.life <= 0) particles.splice(i, 1);
-                else {
-                    trailCtx.fillStyle = p.color; trailCtx.globalAlpha = p.life;
-                    trailCtx.fillRect(p.x, p.y, p.size, p.size);
-                }
-            }
-            trailCtx.globalAlpha = 1;
-            requestAnimationFrame(animatePixels);
-        }
-        animatePixels();
-
-        // ============================================================
-        // 3D PHONE MODE
-        // ============================================================
-        let scene, camera, webglRenderer, cssRenderer, phoneGroup, charmGroup;
-        let collageItems = [];
-        let mode3dRunning = false;
-        let mode3dInitialized = false;
-
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2(-100, -100);
-        let hoveredMesh = null;
-
-        window.addEventListener('mousemove', (event) => {
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        });
-        window.addEventListener('touchstart', (event) => {
-            if (event.touches.length > 0) {
-                mouse.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
-            }
-        }, { passive: true });
-
-        const globalAssets = [
-            'img/asset_1.jpg', 'img/asset_10.jpg', 'img/asset_11.jpg', 'img/asset_12.jpg',
-            'img/asset_13.gif', 'img/asset_14.jpg', 'img/asset_2.jpg', 'img/asset_3.jpg',
-            'img/asset_4.jpg', 'img/asset_6.jpg', 'img/asset_7.jpg', 'img/asset_8.jpg',
-            'img/asset_9.jpg', 'img/demo.gif'
-        ];
-
-        const sectionImages = {
-            home: ['img/home_1.jpg', 'img/home_2.jpg', 'img/home_3.jpg', 'img/home_4.jpg', 'img/home_5.jpg', 'img/home_6.jpg'],
-            about: ['img/about_1.jpg', 'img/about_2.jpg', 'img/about_3.jpg', 'img/about_4.jpg', 'img/about_5.jpg', 'img/about_6.jpg'],
-            skills: ['img/projects_1.jpg', 'img/demo.gif'],
-            projects: ['img/projects_1.jpg', 'img/projects_2.jpg', 'img/demo.gif'],
-            experience: ['img/about_1.jpg', 'img/sessions_2.jpg'],
-            proj1: ['img/qdrift_1.jpg', 'img/qdrift_2.jpg'],
-            proj2: ['img/neuro_1.jpg', 'img/neuro_2.jpg'],
-            community: ['img/sessions_1.jpg', 'img/sessions_2.jpg', 'img/sessions_3.jpg'],
-            sessions: ['img/aws_summit.jpg'],
-            contact: ['img/contact_1.jpg']
-        };
-
-        const textureLoader = new THREE.TextureLoader();
-        function loadTextureSafe(url, onLoad) {
-            textureLoader.load(url, onLoad, undefined, () => { });
-        }
-
-        function initMode3D() {
-            if (mode3dInitialized) return;
-            mode3dInitialized = true;
-
-            scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x050308, 0.035);
-
-            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-
-            webglRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            webglRenderer.setSize(window.innerWidth, window.innerHeight);
-            webglRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            webglRenderer.shadowMap.enabled = true;
-            webglRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            document.getElementById('webgl-container').appendChild(webglRenderer.domElement);
-
-            cssRenderer = new CSS3DRenderer();
-            cssRenderer.setSize(window.innerWidth, window.innerHeight);
-            document.getElementById('css3d-container').appendChild(cssRenderer.domElement);
-
-            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
-            scene.add(ambientLight);
-
-            const dirLight = new THREE.DirectionalLight(0xffb3d9, 3.5);
-            dirLight.position.set(5, 12, 12);
-            dirLight.castShadow = true;
-            dirLight.shadow.mapSize.width = 2048;
-            dirLight.shadow.mapSize.height = 2048;
-            dirLight.shadow.camera.near = 0.5;
-            dirLight.shadow.camera.far = 50;
-            scene.add(dirLight);
-
-            const pointLight = new THREE.PointLight(0x00ffcc, 1.8, 30);
-            pointLight.position.set(-5, -5, 5);
-            scene.add(pointLight);
-
-            const backLight = new THREE.PointLight(0xff66b2, 3.0, 40);
-            backLight.position.set(0, 0, -10);
-            scene.add(backLight);
-
-            const bgPlaneGeo = new THREE.PlaneGeometry(150, 150);
-            const bgPlaneMat = new THREE.ShadowMaterial({ opacity: 0.15 });
-            const bgPlane = new THREE.Mesh(bgPlaneGeo, bgPlaneMat);
-            bgPlane.position.z = -20;
-            bgPlane.receiveShadow = true;
-            scene.add(bgPlane);
-
-            const gridHelper = new THREE.GridHelper(100, 40, 0x00ffcc, 0xff66b2);
-            gridHelper.position.y = -12;
-            gridHelper.position.z = -10;
-            scene.add(gridHelper);
-
-            createCollageBackground('home');
-            createPhoneY2K();
-
-            adjustCameraForDevice();
-
-            if (!prefersReducedMotion) {
-                gsap.from(phoneGroup.position, { y: -20, duration: 2.5, ease: "power3.out" });
-                gsap.from(phoneGroup.rotation, { y: Math.PI * 2, x: 0.5, duration: 2.5, ease: "power3.out" });
-            }
-        }
-
-        function createLiquidMetalGeometry() {
-            const types = ['star', 'torus', 'gem', 'octahedron', 'heart', 'drop'];
-            const type = types[Math.floor(Math.random() * types.length)];
-
-            let geometry;
-            if (type === 'star') {
-                const shape = new THREE.Shape();
-                for (let i = 0; i < 10; i++) {
-                    const r = i % 2 === 0 ? 2.0 : 0.8;
-                    const a = (i / 10) * Math.PI * 2;
-                    if (i === 0) shape.moveTo(Math.cos(a) * r, Math.sin(a) * r);
-                    else shape.lineTo(Math.cos(a) * r, Math.sin(a) * r);
-                }
-                geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.4, bevelEnabled: true, bevelSize: 0.1, bevelThickness: 0.1 });
-            } else if (type === 'torus') {
-                geometry = new THREE.TorusKnotGeometry(1.2, 0.4, 64, 16);
-            } else if (type === 'gem') {
-                geometry = new THREE.OctahedronGeometry(1.5, 0);
-            } else if (type === 'octahedron') {
-                geometry = new THREE.IcosahedronGeometry(1.3, 0);
-            } else if (type === 'heart') {
-                const shape = new THREE.Shape();
-                shape.moveTo(0, 0.3);
-                shape.bezierCurveTo(0.3, 0.6, 1.2, 0.3, 0, -1.0);
-                shape.bezierCurveTo(-1.2, 0.3, -0.3, 0.6, 0, 0.3);
-                geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.3, bevelEnabled: true, bevelSegments: 3, steps: 2, bevelSize: 0.05, bevelThickness: 0.05 });
-            } else if (type === 'drop') {
-                const shape = new THREE.Shape();
-                shape.moveTo(0, 1.5);
-                shape.bezierCurveTo(0.8, -0.5, 0.8, -1.5, 0, -1.5);
-                shape.bezierCurveTo(-0.8, -1.5, -0.8, -0.5, 0, 1.5);
-                geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.4, bevelEnabled: true, bevelSize: 0.1, bevelThickness: 0.1 });
-            }
-
-            const colors = [0xffb3ba, 0xffdfba, 0xffffba, 0xbaffc9, 0xbae1ff, 0xe6b3ff, 0xcccccc];
-            const isCyber = Math.random() > 0.7;
-            const material = new THREE.MeshPhongMaterial({
-                color: isCyber ? 0x00ffcc : colors[Math.floor(Math.random() * colors.length)],
-                specular: 0xffffff,
-                shininess: 100,
-                reflectivity: 1,
-                wireframe: isCyber,
-                emissive: isCyber ? 0x003322 : 0x000000
-            });
-
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.userData.isY2KObject = true;
-            return mesh;
-        }
-
-        function getNonOverlappingPosition(boxes, w, h, scale, isPrimary, attempt = 0) {
-            let nz = isPrimary ? (-0.5 - Math.random() * 1.5) : (-2.5 - Math.random() * 2.5);
-            const ww = window.innerWidth;
-            const wh = window.innerHeight;
-            let cameraZ = 16;
-            if (ww <= 600) cameraZ = 24;
-            else if (ww <= 1024) cameraZ = 18;
-
-            const distance = cameraZ - nz;
-            const frustumHeight = 2 * distance * Math.tan((45 / 2) * (Math.PI / 180));
-            const frustumWidth = frustumHeight * (ww / wh);
-
-            const itemW = w * scale;
-            const itemH = h * scale;
-
-            let maxX = (frustumWidth / 2) - (itemW / 2) - 0.2;
-            let maxY = (frustumHeight / 2) - (itemH / 2) - 0.2;
-            const safeMaxX = Math.max(0, maxX);
-            const safeMaxY = Math.max(0, maxY);
-
-            if (attempt > 150) {
-                return { x: (Math.random() - 0.5) * 2 * safeMaxX, y: (Math.random() - 0.5) * 2 * safeMaxY, z: nz };
-            }
-
-            let nx = (Math.random() - 0.5) * 2 * safeMaxX;
-            let ny = (Math.random() - 0.5) * 2 * safeMaxY;
-
-            if (Math.abs(nx) < 4.5 && Math.abs(ny) < 6.0) {
-                return getNonOverlappingPosition(boxes, w, h, scale, isPrimary, attempt + 1);
-            }
-
-            let overlap = false;
-            for (let b of boxes) {
-                if (Math.abs(nx - b.x) < (itemW + b.w) / 2 * 0.85 &&
-                    Math.abs(ny - b.y) < (itemH + b.h) / 2 * 0.85) {
-                    overlap = true;
-                    break;
-                }
-            }
-
-            if (overlap) return getNonOverlappingPosition(boxes, w, h, scale, isPrimary, attempt + 1);
-
-            return { x: nx, y: ny, z: nz };
-        }
-
-        function createCollageBackground(sectionKey) {
-            let placedBoxes = [];
-            collageItems.forEach(item => scene.remove(item));
-            collageItems = [];
-
-            const availableImages = sectionImages[sectionKey] || sectionImages['home'];
-            let uniqueAvailable = [...new Set(availableImages)];
-            let shuffledAssets = [...globalAssets].sort(() => Math.random() - 0.5);
-            shuffledAssets = shuffledAssets.filter(img => !uniqueAvailable.includes(img));
-            let mixedImages = [...uniqueAvailable, ...shuffledAssets];
-
-            let imageIndex = 0;
-            for (let i = 0; i < 22; i++) {
-                let mesh;
-                if (Math.random() > 0.8 || imageIndex >= mixedImages.length) {
-                    mesh = createLiquidMetalGeometry();
-                } else {
-                    const texUrl = mixedImages[imageIndex];
-                    imageIndex++;
-                    const isPrimary = uniqueAvailable.includes(texUrl);
-                    const w = isPrimary ? (3.0 + Math.random() * 1.5) : (2.0 + Math.random() * 1.5);
-                    const h = w * (0.7 + Math.random() * 0.5);
-                    const geometry = new THREE.PlaneGeometry(w, h);
-
-                    const material = new THREE.MeshStandardMaterial({
-                        color: 0xffffff, side: THREE.DoubleSide, roughness: 0.4, metalness: 0.1, emissive: 0x111111
-                    });
-
-                    loadTextureSafe(texUrl, (tex) => {
-                        tex.colorSpace = THREE.SRGBColorSpace;
-                        material.map = tex; material.needsUpdate = true;
-                    });
-
-                    mesh = new THREE.Mesh(geometry, material);
-                    mesh.userData.isY2KObject = false;
-                    mesh.userData.isPrimary = isPrimary;
-                    mesh.userData.w = w;
-                    mesh.userData.h = h;
-                }
-
-                mesh.receiveShadow = true; mesh.castShadow = true;
-                randomizeMeshTransform(mesh, placedBoxes);
-                scene.add(mesh);
-                collageItems.push(mesh);
-            }
-        }
-
-        function updateCollageForSection(sectionKey) {
-            const availableImages = sectionImages[sectionKey] || sectionImages['home'];
-            let uniqueAvailable = [...new Set(availableImages)];
-            let shuffledAssets = [...globalAssets].sort(() => Math.random() - 0.5);
-            shuffledAssets = shuffledAssets.filter(img => !uniqueAvailable.includes(img));
-            let mixedImages = [...uniqueAvailable, ...shuffledAssets];
-
-            let imageIndex = 0;
-            let placedBoxes = [];
-            collageItems.forEach((mesh) => {
-                if (mesh.userData.isY2KObject) {
-                    mesh.visible = true;
-                    const nx = (Math.random() - 0.5) * 30;
-                    const ny = (Math.random() - 0.5) * 20;
-                    const nz = -4 - (Math.random() * 10);
-                    const nScale = 0.6 + Math.random() * 1.4;
-                    mesh.userData.originalScale = nScale;
-                    const dur = prefersReducedMotion ? 0 : 1.6;
-                    gsap.to(mesh.position, { x: nx, y: ny, z: nz, duration: dur, ease: "power2.inOut" });
-                    gsap.to(mesh.scale, { x: nScale, y: nScale, z: nScale, duration: dur, ease: "power2.inOut" });
-                    gsap.to(mesh.rotation, { x: Math.random() * Math.PI * 2, y: Math.random() * Math.PI * 2, z: Math.random() * Math.PI * 2, duration: dur, ease: "power2.inOut" });
-                } else {
-                    const texUrl = mixedImages[imageIndex];
-                    if (!texUrl) { mesh.visible = false; return; }
-                    mesh.visible = true;
-                    imageIndex++;
-                    const isPrimary = uniqueAvailable.includes(texUrl);
-                    mesh.userData.isPrimary = isPrimary;
-
-                    const wMultiplier = (window.innerWidth <= 600) ? 0.5 : (window.innerWidth <= 1024 ? 0.75 : 1.0);
-                    const nScale = (isPrimary ? (1.0 + Math.random() * 0.4) : (0.6 + Math.random() * 0.4)) * wMultiplier;
-                    mesh.userData.originalScale = nScale;
-                    const pos = getNonOverlappingPosition(placedBoxes, mesh.userData.w, mesh.userData.h, nScale, isPrimary);
-                    placedBoxes.push({ x: pos.x, y: pos.y, w: mesh.userData.w * nScale, h: mesh.userData.h * nScale });
-
-                    const dur = prefersReducedMotion ? 0 : 1.6;
-                    gsap.to(mesh.position, { x: pos.x, y: pos.y, z: pos.z, duration: dur, ease: "power2.inOut" });
-                    gsap.to(mesh.scale, { x: nScale, y: nScale, z: nScale, duration: dur, ease: "power2.inOut" });
-                    const rotZ = isPrimary ? 0 : ((Math.random() - 0.5) * 0.2);
-                    gsap.to(mesh.rotation, { x: 0, y: 0, z: rotZ, duration: dur });
-
-                    loadTextureSafe(texUrl, (tex) => {
-                        tex.colorSpace = THREE.SRGBColorSpace;
-                        mesh.material.map = tex; mesh.material.needsUpdate = true;
-                    });
-                }
-            });
-        }
-
-        function randomizeMeshTransform(mesh, placedBoxes = []) {
-            if (mesh.userData.isY2KObject) {
-                mesh.position.set((Math.random() - 0.5) * 30, (Math.random() - 0.5) * 20, -4 - (Math.random() * 10));
-                const sc = 0.6 + Math.random() * 1.4;
-                mesh.userData.originalScale = sc;
-                mesh.scale.set(sc, sc, sc);
-                mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-            } else {
-                const isPrimary = mesh.userData.isPrimary;
-                const wMultiplier = (window.innerWidth <= 600) ? 0.5 : (window.innerWidth <= 1024 ? 0.75 : 1.0);
-                const sc = (isPrimary ? (1.0 + Math.random() * 0.4) : (0.6 + Math.random() * 0.4)) * wMultiplier;
-                mesh.userData.originalScale = sc;
-                const pos = getNonOverlappingPosition(placedBoxes, mesh.userData.w, mesh.userData.h, sc, isPrimary);
-                placedBoxes.push({ x: pos.x, y: pos.y, w: mesh.userData.w * sc, h: mesh.userData.h * sc });
-
-                mesh.position.set(pos.x, pos.y, pos.z);
-                mesh.scale.set(sc, sc, sc);
-                mesh.rotation.set(0, 0, isPrimary ? 0 : ((Math.random() - 0.5) * 0.2));
-            }
-        }
-
-        function createPhoneY2K() {
-            phoneGroup = new THREE.Group();
-            const bodyWidth = 4.1, bodyHeight = 8.2, bodyDepth = 0.45;
-
-            const chassisGeo = new RoundedBoxGeometry(bodyWidth, bodyHeight, bodyDepth, 8, 0.4);
-            const chassisMat = new THREE.MeshStandardMaterial({ color: 0xf0e6ff, roughness: 0.08, metalness: 1.0 });
-            const chassis = new THREE.Mesh(chassisGeo, chassisMat);
-            chassis.castShadow = true; chassis.receiveShadow = true;
-
-            const bezelGeo = new RoundedBoxGeometry(bodyWidth - 0.2, bodyHeight - 0.2, 0.1, 4, 0.2);
-            const bezelMat = new THREE.MeshStandardMaterial({ color: 0x050308, roughness: 0.1, metalness: 0.8 });
-            const bezel = new THREE.Mesh(bezelGeo, bezelMat);
-            bezel.position.z = (bodyDepth / 2);
-
-            phoneGroup.add(chassis); phoneGroup.add(bezel);
-
-            const gemMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0, transmission: 0.9, thickness: 1.2, ior: 1.5 });
-            const heartGeo = new THREE.OctahedronGeometry(0.35, 0);
-            const heart1 = new THREE.Mesh(heartGeo, gemMat);
-            heart1.position.set(-1.3, 3.1, (bodyDepth / 2) + 0.08);
-            phoneGroup.add(heart1);
-
-            const starGeo = new THREE.ConeGeometry(0.3, 0.2, 5);
-            const star1 = new THREE.Mesh(starGeo, new THREE.MeshStandardMaterial({ color: 0xff99cc, metalness: 0.8, roughness: 0.2 }));
-            star1.position.set(1.3, 3.2, (bodyDepth / 2) + 0.08);
-            star1.rotation.x = Math.PI / 2;
-            phoneGroup.add(star1);
-
-            charmGroup = new THREE.Group();
-            charmGroup.position.set(bodyWidth / 2 - 0.1, -bodyHeight / 2 + 0.5, 0);
-
-            const beadMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.05, metalness: 0.9 });
-            const crystalBeadMat = new THREE.MeshPhysicalMaterial({ color: 0xffb3d9, roughness: 0, transmission: 0.9, thickness: 0.8 });
-
-            let prevY = 0;
-            for (let i = 0; i < 9; i++) {
-                const isCrystal = i % 2 === 0;
-                const bGeo = isCrystal ? new THREE.SphereGeometry(0.18, 16, 16) : new THREE.BoxGeometry(0.25, 0.25, 0.25);
-                const bMesh = new THREE.Mesh(bGeo, isCrystal ? crystalBeadMat : beadMat);
-                bMesh.position.set(Math.sin(i * 0.6) * 0.15, prevY - 0.35, Math.cos(i * 0.4) * 0.1);
-                prevY = bMesh.position.y;
-                charmGroup.add(bMesh);
-            }
-            phoneGroup.add(charmGroup);
-
-            document.getElementById('phone-ui').style.display = 'block';
-            const screenElement = document.getElementById('phone-screen');
-            const cssObject = new CSS3DObject(screenElement);
-            cssObject.scale.set(0.01, 0.01, 0.01);
-            cssObject.position.set(0, 0, (bodyDepth / 2) + 0.05);
-
-            phoneGroup.add(cssObject);
-            phoneGroup.position.z = 3;
-            scene.add(phoneGroup);
-        }
-
-        function adjustCameraForDevice() {
-            if (!camera) return;
-            if (window.innerWidth <= 600) camera.position.z = 24;
-            else if (window.innerWidth <= 1024) camera.position.z = 18;
-            else camera.position.z = 16;
-        }
-
-        function onWindowResize3D() {
-            if (!mode3dInitialized) return;
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            webglRenderer.setSize(window.innerWidth, window.innerHeight);
-            cssRenderer.setSize(window.innerWidth, window.innerHeight);
-            adjustCameraForDevice();
-        }
-        window.addEventListener('resize', onWindowResize3D);
-
-        function animate3D() {
-            if (!mode3dRunning) return;
-            requestAnimationFrame(animate3D);
-            const time = Date.now() * 0.001;
-
-            if (phoneGroup && !prefersReducedMotion) {
-                phoneGroup.position.y = Math.sin(time) * 0.12;
-                if (charmGroup) charmGroup.rotation.z = Math.sin(time * 2) * 0.15;
-            }
-
-            if (!prefersReducedMotion) {
-                collageItems.forEach((mesh, i) => {
-                    mesh.position.y += Math.sin(time + i) * 0.002;
-                    if (mesh.userData.isY2KObject) {
-                        mesh.rotation.x += 0.005; mesh.rotation.y += 0.008;
-                    }
-                });
-            }
-
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(collageItems);
-
-            if (intersects.length > 0) {
-                const object = intersects[0].object;
-                if (hoveredMesh !== object) {
-                    if (hoveredMesh) {
-                        gsap.to(hoveredMesh.scale, {
-                            x: hoveredMesh.userData.originalScale, y: hoveredMesh.userData.originalScale, z: hoveredMesh.userData.originalScale, duration: 0.3
-                        });
-                        hoveredMesh.material.emissive.setHex(hoveredMesh.userData.originalEmissive || 0x000000);
-                    }
-                    hoveredMesh = object;
-                    document.body.style.cursor = 'crosshair';
-
-                    if (!hoveredMesh.userData.originalScale) hoveredMesh.userData.originalScale = hoveredMesh.scale.x;
-                    if (hoveredMesh.userData.originalEmissive === undefined) hoveredMesh.userData.originalEmissive = hoveredMesh.material.emissive.getHex();
-
-                    gsap.to(hoveredMesh.scale, {
-                        x: hoveredMesh.userData.originalScale * 1.15, y: hoveredMesh.userData.originalScale * 1.15, z: hoveredMesh.userData.originalScale * 1.15,
-                        duration: 0.4, ease: "back.out(2)"
-                    });
-
-                    if (hoveredMesh.userData.isY2KObject) hoveredMesh.material.emissive.setHex(0xff66b2);
-                    else hoveredMesh.material.emissive.setHex(0x003333);
-                }
-            } else {
-                if (hoveredMesh) {
-                    gsap.to(hoveredMesh.scale, {
-                        x: hoveredMesh.userData.originalScale, y: hoveredMesh.userData.originalScale, z: hoveredMesh.userData.originalScale, duration: 0.3
-                    });
-                    hoveredMesh.material.emissive.setHex(hoveredMesh.userData.originalEmissive || 0x000000);
-                    hoveredMesh = null;
-                    document.body.style.cursor = 'default';
-                }
-            }
-            webglRenderer.render(scene, camera);
-            cssRenderer.render(scene, camera);
-        }
-
-        function startMode3D() { initMode3D(); mode3dRunning = true; onWindowResize3D(); animate3D(); }
-        function stopMode3D() { mode3dRunning = false; }
-
-        window.navigateTo = function (sectionId) {
-            playDtmfSound();
-            const sections = document.querySelectorAll('.content-section');
-            sections.forEach(sec => sec.classList.remove('active'));
-
-            const activeSection = document.getElementById('menu-' + sectionId);
-            if (activeSection) {
-                activeSection.classList.add('active');
-                document.getElementById('phone-screen').scrollTop = 0;
-            }
-            updateCollageForSection(sectionId);
-
-            if (!prefersReducedMotion) {
-                gsap.timeline()
-                    .to(phoneGroup.rotation, { z: -0.05, duration: 0.1 })
-                    .to(phoneGroup.rotation, { z: 0, duration: 0.3, ease: "back.out(2)" });
-            }
-        };
-
-        document.querySelectorAll('[data-phone-section]').forEach((control) => {
-            control.addEventListener('click', () => window.navigateTo(control.dataset.phoneSection));
-        });
-
-        // ============================================================
-        // CLASSIC MODE - ACTUALIZADO PARA DEJAR EL CENTRO LIBRE
-        // ============================================================
-        let classicScene, classicCamera, classicRenderer, classicShapes = [];
-        let classicRunning = false;
-        let classicInitialized = false;
-
-        function initClassicBg() {
-            if (classicInitialized) return;
-            classicInitialized = true;
-
-            const canvas = document.getElementById('classic-bg-canvas');
-            classicScene = new THREE.Scene();
-            classicCamera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-            classicCamera.position.z = 18;
-
-            classicRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-            classicRenderer.setSize(window.innerWidth, window.innerHeight);
-            classicRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-            const light = new THREE.DirectionalLight(0xffffff, 2);
-            light.position.set(4, 6, 10);
-            classicScene.add(light);
-            classicScene.add(new THREE.AmbientLight(0xffffff, 0.6));
-
-            const geos = [
-                new THREE.IcosahedronGeometry(1, 0),
-                new THREE.OctahedronGeometry(1, 0),
-                new THREE.TorusGeometry(0.7, 0.25, 12, 24)
-            ];
-            const colors = [0x00ffcc, 0xff66b2, 0xffffff];
-
-            for (let i = 0; i < 16; i++) {
-                const geo = geos[i % geos.length];
-                const mat = new THREE.MeshStandardMaterial({
-                    color: colors[i % colors.length],
-                    wireframe: i % 3 === 0,
-                    roughness: 0.4,
-                    metalness: 0.3,
-                    transparent: true,
-                    opacity: 0.6
-                });
-                const mesh = new THREE.Mesh(geo, mat);
-
-                const side = i % 2 === 0 ? -1 : 1;
-                const xPos = side * (9 + Math.random() * 13);
-
-                mesh.position.set(xPos, (Math.random() - 0.5) * 20, -4 - Math.random() * 8);
-
-                const sc = 0.6 + Math.random() * 1.0;
-                mesh.scale.set(sc, sc, sc);
-                mesh.userData.speed = 0.05 + Math.random() * 0.1;
-                mesh.userData.offset = Math.random() * Math.PI * 2;
-                classicScene.add(mesh);
-                classicShapes.push(mesh);
-            }
-            window.addEventListener('resize', onClassicResize);
-        }
-
-        function onClassicResize() {
-            if (!classicInitialized) return;
-            classicCamera.aspect = window.innerWidth / window.innerHeight;
-            classicCamera.updateProjectionMatrix();
-            classicRenderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        function animateClassic() {
-            if (!classicRunning) return;
-            requestAnimationFrame(animateClassic);
-            if (!prefersReducedMotion) {
-                const t = Date.now() * 0.001;
-                classicShapes.forEach((m) => {
-                    m.rotation.x += m.userData.speed * 0.01;
-                    m.rotation.y += m.userData.speed * 0.015;
-                    m.position.y += Math.sin(t + m.userData.offset) * 0.003;
-                });
-            }
-            classicRenderer.render(classicScene, classicCamera);
-        }
-
-        function startClassicMode() { initClassicBg(); classicRunning = true; onClassicResize(); animateClassic(); }
-        function stopClassicMode() { classicRunning = false; }
-
-        // ============================================================
-        // MODE & LANG TOGGLE
-        // ============================================================
-        const body = document.body;
-        const mode3dEl = document.getElementById('mode-3d');
-        const modeClassicEl = document.getElementById('mode-classic');
-        const toggleBtn = document.getElementById('mode-toggle');
-        const toggleLabel = document.getElementById('mode-toggle-label');
-        const langToggleBtn = document.getElementById('lang-toggle');
-        const announcer = document.getElementById('mode-announcer');
-        const bootVeil = document.getElementById('boot-veil');
-        const STORAGE_KEY = 'shel-portfolio-mode-v2';
-
-        function setMode(mode, announce) {
-            if (mode === 'classic') {
-                body.classList.remove('mode-3d'); body.classList.add('mode-classic');
-                mode3dEl.style.display = 'none'; modeClassicEl.style.display = 'block';
-                stopMode3D(); startClassicMode();
-                toggleLabel.textContent = translations[langs[currentLangIndex]]['controls.phone'];
-                toggleBtn.setAttribute('aria-pressed', 'true');
-            } else {
-                body.classList.remove('mode-classic'); body.classList.add('mode-3d');
-                mode3dEl.style.display = 'block'; modeClassicEl.style.display = 'none';
-                stopClassicMode(); startMode3D();
-                toggleLabel.textContent = translations[langs[currentLangIndex]]['controls.classic'];
-                toggleBtn.setAttribute('aria-pressed', 'false');
-            }
-            try { localStorage.setItem(STORAGE_KEY, mode); } catch (e) { }
-            if (announce) announcer.textContent = mode === 'classic' ? 'Switched to classic view' : 'Switched to 3D phone view';
-        }
-
-        toggleBtn.addEventListener('click', () => {
-            const goingClassic = body.classList.contains('mode-3d');
-            setMode(goingClassic ? 'classic' : '3d', true);
-        });
-
-        const langs = ['es', 'en', 'pt'];
-        let currentLangIndex = 0;
-
-        const languageCopy = {
-            es: {
-                'controls.classic': '☰ Vista clásica', 'controls.phone': '📱 Vista 3D', 'controls.language': '🌐 ES | en | pt', 'system.boot': '[INICIANDO_SISTEMA]...', 'hero.kicker': '>_ Ingeniera de Software & Soluciones QAI', 'hero.title': 'Construyo puentes entre Cloud, Quantum y las personas que están aprendiendo a usarlos.', 'hero.description': 'AWS Community Builder, speaker técnica y fundadora de AWSpectrum LATAM. Exploro computación cuántica, flujos de IA multiagente y arquitecturas cloud con una mirada humana y práctica.',
-                '.classic-nav a': ['01. Sobre mí', '02. Enfoque técnico', '03. I+D', '04. Charlas', '05. AWSpectrum', '06. Impacto', '07. Proyectos', '08. Comunidad', '09. Contacto'],
-                '.classic-hero .kicker': ['>_ Ingeniera de Software & Soluciones QAI'],
-                '.classic-hero h1': ['Construyo puentes entre Cloud, Quantum y las personas que están aprendiendo a usarlos.'],
-                '.classic-hero > p:not(.kicker)': ['AWS Community Builder, speaker técnica y fundadora de AWSpectrum LATAM. Exploro computación cuántica, flujos de IA multiagente y arquitecturas cloud con una mirada humana y práctica.'],
-                '.classic-hero .cta-row a': ['Ver proyectos destacados', 'Descargar CV'],
-                '#c-about h2': ['01 — Mi trayectoria'],
-                '#c-about .lede': ['Mi trayectoria no ha sido lineal, y precisamente ahí está una de mis mayores fortalezas. Comencé en Ingeniería en Metalurgia y Materiales, desarrollando una forma de pensar orientada a procesos, antes de moverme hacia Ingeniería en Desarrollo de Software.', 'Mi curiosidad me llevó por VR/AR, Neurotecnología, Cloud, IA, Computación Cuántica y construcción de comunidad. No veo estos campos como caminos separados: son distintas formas de entender y construir sistemas.'],
-                '#c-focus h2': ['02 — Lo que construyo y cómo aprendo'],
-                '#c-focus > .lede': ['No sigo una sola tecnología. Sigo problemas. Mi proceso es: Explorar → Investigar → Construir → Romper → Entender → Compartir.'],
-                '#c-experience h2': ['03 — Experiencia internacional de I+D'],
-                '#c-speaking h2': ['04 — Speaker técnica y mentoría'],
-                '#c-speaking > .lede': ['He participado como speaker en más de 10 eventos técnicos en distintas ciudades y estados de México, conectando AWS, Cloud, IA, Computación Cuántica, Desarrollo de Software y Tecnologías Emergentes.'],
-                '#c-speaking .profile-block strong': ['AWS Summit Mexico 2026', 'Quantum Spotlight', 'AWSome Women Summit LATAM'],
-                '#c-speaking .profile-block p': ['“Atrapado en la lluvia: Tu ruta inteligente en segundos”: un proyecto de IA + optimización + Amazon Braket aplicado a inundaciones urbanas.', 'Seleccionada para llevar computación cuántica a una audiencia de desarrolladores y profesionales de cloud.', '“De lo Clásico a lo Cuántico con AWS”, una charla sobre arquitecturas híbridas y nuevas formas de construir en la nube.'],
-                '#c-speaking .timeline-list h3': ['Teaching & Technical Communication', 'Mentorship & Leadership'],
-                '#c-speaking .timeline-list p': ['Fui instructora de programación para más de 50 estudiantes. Diseño workshops, explico conceptos complejos, adapto contenido a distintos niveles y acompaño procesos de aprendizaje.', 'He participado como Technical Mentor, Workshop Facilitator, Research Project Lead, Community Lead, Speaker y Programming Instructor. Mi objetivo es acompañar a alguien de “no sé cómo funciona” a “ya puedo construir algo con esto”.'],
-                '#c-spectrum h2': ['05 — AWSpectrum LATAM'],
-                '#c-spectrum .spectrum-mark': ['FUNDADORA Y COMMUNITY LEAD'],
-                '#c-spectrum .project-card h3': ['Construir referentes también es construir infraestructura.'],
-                '#c-spectrum .project-card p': ['AWSpectrum LATAM es la primera comunidad de mujeres enfocada en AWS en Latinoamérica. La fundé para hacer visible al talento diverso y crear espacios donde más personas puedan aprender, participar, hablar y liderar.', 'Coordino una comunidad multidisciplinaria con personas en tecnología, contenido, diseño, web, promoción, reclutamiento, logística, staff y alianzas. No se trata solamente de organizar eventos: estoy construyendo identidad, estructura, equipos, comunicación y estrategia desde cero.', '“La representación cambia lo que las personas creen que pueden llegar a ser.”'],
-                '#c-impact h2': ['06 — Reconocimientos e impacto'],
-                '#c-impact > .lede': ['No quiero que mi portafolio solamente diga qué tecnologías utilizo. Quiero mostrar qué he hecho con ellas y a quiénes he ayudado a acercarse a ellas.'],
-                '#c-impact .impact-stat span': ['Charlas técnicas en México', 'Estudiantes de programación', 'Colaboradores y voluntarios de comunidad', 'Experiencia internacional de I+D en Osaka', 'Poster aceptado en QSEEC26', 'Community Builder de AWS, Machine Learning, segundo año consecutivo'],
-                '#c-impact .timeline-list h3': ['Reconocimientos y hitos'],
-                '#c-impact .timeline-list p': ['AWS New Voices Alum · Fundadora de AWSpectrum LATAM · Speaker seleccionada para AWS Summit Mexico 2026 · Quantum Spotlight · Purdue QSTEP2026 aceptada · Mentora y Project Lead de QIntern 2026 · Facilitadora de workshops técnicos.'],
-                '#c-projects h2': ['07 — Proyectos destacados'],
-                '#c-projects > .lede': ['No quiero que mi portafolio solo diga qué tecnologías utilizo. Quiero mostrar qué he construido con ellas.'],
-                '#c-community h2': ['08 — Liderazgo, comunidad y charlas'],
-                '#c-contact h2': ['09 — Contacto'],
-                '#c-contact .lede': ['Conectemos para construir el futuro de Cloud, Quantum e IA.'],
-                '.action-band strong': ['¿Quieres conocer el recorrido completo?', 'Las comunidades también se construyen.', 'Ideas que se pueden construir.'],
-                '.action-band p > span': ['Explora cómo conecto investigación, software y tecnologías emergentes.', 'AWSpectrum LATAM nació para convertir representación en oportunidades concretas.', 'Mira los proyectos donde estas tecnologías toman forma.'],
-                '.action-band .classic-cta': ['Ver mi experiencia ↗', 'Conocer AWSpectrum ↗', 'Explorar proyectos ↗']
-            },
-            en: {
-                'controls.classic': '☰ Classic view', 'controls.phone': '📱 3D phone view', 'controls.language': '🌐 es | EN | pt', 'system.boot': '[BOOTING_SYSTEM]...', 'hero.kicker': '>_ Software & QAI Solutions Engineer', 'hero.title': 'I build bridges between Cloud, Quantum, and the people learning to use them.', 'hero.description': 'AWS Community Builder, technical speaker, and founder of AWSpectrum LATAM. I explore quantum computing, multi-agent AI workflows, and cloud architectures through a practical, human lens.',
-                '.classic-nav a': ['01. About', '02. Technical focus', '03. R&D', '04. Talks', '05. AWSpectrum', '06. Impact', '07. Projects', '08. Community', '09. Contact'],
-                '.classic-hero .kicker': ['>_ Software & QAI Solutions Engineer'],
-                '.classic-hero h1': ['I build bridges between Cloud, Quantum, and the people learning to use them.'],
-                '.classic-hero > p:not(.kicker)': ['AWS Community Builder, technical speaker, and founder of AWSpectrum LATAM. I explore quantum computing, multi-agent AI workflows, and cloud architectures through a practical, human lens.'],
-                '.classic-hero .cta-row a': ['View pinned projects', 'Download CV'],
-                '#c-about h2': ['01 — My journey'],
-                '#c-about .lede': ['My journey has not been linear, and that is one of my biggest strengths. I started in Metallurgy and Materials Engineering, developing a process-oriented mindset before moving into Software Development Engineering.', 'My curiosity led me through VR/AR, Neurotechnology, Cloud, AI, Quantum Computing, and community building. I see these as different ways to understand and build systems.'],
-                '#c-focus h2': ['02 — What I build & how I learn'],
-                '#c-focus > .lede': ['I do not follow a single technology. I follow problems. My process is: Explore → Research → Build → Break → Understand → Share.'],
-                '#c-experience h2': ['03 — International R&D experience'],
-                '#c-speaking h2': ['04 — Technical speaker & mentor'],
-                '#c-speaking > .lede': ['I have spoken at 10+ technical events across different cities and states in Mexico, connecting AWS, Cloud, AI, Quantum Computing, Software Development, and emerging technologies.'],
-                '#c-speaking .profile-block strong': ['AWS Summit Mexico 2026', 'Quantum Spotlight', 'AWSome Women Summit LATAM'],
-                '#c-speaking .profile-block p': ['“Caught in the Rain: Your smart route in seconds”: an AI + optimization + Amazon Braket project applied to urban flooding.', 'Selected to bring quantum computing to developers and cloud practitioners.', '“From Classical to Quantum with AWS”, a talk about hybrid architectures and new ways to build in the cloud.'],
-                '#c-speaking .timeline-list h3': ['Teaching & Technical Communication', 'Mentorship & Leadership'],
-                '#c-speaking .timeline-list p': ['I taught programming to 50+ students. I design workshops, explain complex concepts, adapt content to different levels, and support learning journeys.', 'I have worked as a Technical Mentor, Workshop Facilitator, Research Project Lead, Community Lead, Speaker, and Programming Instructor. I help people move from “I do not know how this works” to “I can build with this”.'],
-                '#c-spectrum h2': ['05 — AWSpectrum LATAM'],
-                '#c-spectrum .spectrum-mark': ['FOUNDER & COMMUNITY LEAD'],
-                '#c-spectrum .project-card h3': ['Building role models is also building infrastructure.'],
-                '#c-spectrum .project-card p': ['AWSpectrum LATAM is the first AWS-focused women’s community in Latin America. I founded it to make diverse talent visible and create spaces where more people can learn, participate, speak, and lead.', 'I coordinate a multidisciplinary community across technology, content, design, web, promotion, recruitment, logistics, staff, and partnerships. This is more than organizing events: I am building identity, structure, teams, communication, and strategy from the ground up.', '“Representation changes what people believe they can become.”'],
-                '#c-impact h2': ['06 — Recognition & impact'],
-                '#c-impact > .lede': ['I do not want my portfolio to only list technologies. I want it to show what I have done with them and who I have helped bring closer to them.'],
-                '#c-impact .impact-stat span': ['Technical talks across Mexico', 'Programming students', 'Community collaborators and volunteers', 'International R&D experience in Osaka', 'Accepted QSEEC26 poster', 'AWS Community Builder, Machine Learning, second consecutive year'],
-                '#c-impact .timeline-list h3': ['Recognition & milestones'],
-                '#c-impact .timeline-list p': ['AWS New Voices Alum · Founder of AWSpectrum LATAM · Selected AWS Summit Mexico 2026 Speaker · Quantum Spotlight · Purdue QSTEP2026 accepted · QIntern 2026 Mentor / Project Lead · Technical workshop facilitator.'],
-                '#c-projects h2': ['07 — Pinned projects'],
-                '#c-projects > .lede': ['I do not want my portfolio to simply list technologies. I want it to show what I have built with them.'],
-                '#c-community h2': ['08 — Leadership, community & speaking'],
-                '#c-contact h2': ['09 — Contact'],
-                '#c-contact .lede': ['Let us connect and build the future of Cloud, Quantum, and AI.'],
-                '.action-band strong': ['Want to see the full journey?', 'Communities are built too.', 'Ideas are meant to become real.'],
-                '.action-band p > span': ['Explore how I connect research, software, and emerging technologies.', 'AWSpectrum LATAM turns representation into concrete opportunities.', 'Explore the projects where these technologies take shape.'],
-                '.action-band .classic-cta': ['See my experience ↗', 'Explore AWSpectrum ↗', 'Explore projects ↗']
-            },
-            pt: {
-                'controls.classic': '☰ Vista clássica', 'controls.phone': '📱 Vista 3D', 'controls.language': '🌐 es | en | PT', 'system.boot': '[INICIANDO_SISTEMA]...', 'hero.kicker': '>_ Engenheira de Software & Soluções QAI', 'hero.title': 'Construo pontes entre Cloud, Quantum e as pessoas que estão aprendendo a usá-los.', 'hero.description': 'AWS Community Builder, palestrante técnica e fundadora da AWSpectrum LATAM. Exploro computação quântica, fluxos de IA multiagente e arquiteturas cloud com uma visão humana e prática.',
-                '.classic-nav a': ['01. Sobre mim', '02. Foco técnico', '03. P&D', '04. Palestras', '05. AWSpectrum', '06. Impacto', '07. Projetos', '08. Comunidade', '09. Contato'],
-                '.classic-hero .kicker': ['>_ Engenheira de Software & Soluções QAI'],
-                '.classic-hero h1': ['Construo pontes entre Cloud, Quantum e as pessoas que estão aprendendo a usá-los.'],
-                '.classic-hero > p:not(.kicker)': ['AWS Community Builder, palestrante técnica e fundadora da AWSpectrum LATAM. Exploro computação quântica, fluxos de IA multiagente e arquiteturas cloud com uma visão humana e prática.'],
-                '.classic-hero .cta-row a': ['Ver projetos em destaque', 'Baixar CV'],
-                '#c-about h2': ['01 — Minha jornada'],
-                '#c-about .lede': ['Minha trajetória não foi linear, e essa é uma das minhas maiores forças. Comecei em Engenharia Metalúrgica e de Materiais, desenvolvendo uma forma de pensar orientada a processos, antes de migrar para Engenharia de Software.', 'Minha curiosidade me levou por VR/AR, Neurotecnologia, Cloud, IA, Computação Quântica e construção de comunidades. Vejo esses campos como formas diferentes de entender e construir sistemas.'],
-                '#c-focus h2': ['02 — O que construo e como aprendo'],
-                '#c-focus > .lede': ['Não sigo uma única tecnologia. Sigo problemas. Meu processo é: Explorar → Pesquisar → Construir → Quebrar → Entender → Compartilhar.'],
-                '#c-experience h2': ['03 — Experiência internacional de P&D'],
-                '#c-speaking h2': ['04 — Palestrante técnica e mentoria'],
-                '#c-speaking > .lede': ['Participei como palestrante em mais de 10 eventos técnicos em diferentes cidades e estados do México, conectando AWS, Cloud, IA, Computação Quântica, Desenvolvimento de Software e tecnologias emergentes.'],
-                '#c-speaking .profile-block strong': ['AWS Summit Mexico 2026', 'Quantum Spotlight', 'AWSome Women Summit LATAM'],
-                '#c-speaking .profile-block p': ['“Presos na chuva: sua rota inteligente em segundos”: um projeto de IA + otimização + Amazon Braket aplicado a inundações urbanas.', 'Selecionada para levar computação quântica a desenvolvedores e profissionais de cloud.', '“Do Clássico ao Quântico com AWS”, uma palestra sobre arquiteturas híbridas e novas formas de construir na nuvem.'],
-                '#c-speaking .timeline-list h3': ['Ensino e comunicação técnica', 'Mentoria e liderança'],
-                '#c-speaking .timeline-list p': ['Fui instrutora de programação para mais de 50 alunos. Crio workshops, explico conceitos complexos, adapto conteúdo a diferentes níveis e acompanho processos de aprendizagem.', 'Atuei como mentora técnica, facilitadora de workshops, líder de pesquisa, líder de comunidade, palestrante e instrutora. Ajudo pessoas a passar de “não sei como funciona” para “já consigo construir com isso”.'],
-                '#c-spectrum h2': ['05 — AWSpectrum LATAM'],
-                '#c-spectrum .spectrum-mark': ['FUNDADORA E COMMUNITY LEAD'],
-                '#c-spectrum .project-card h3': ['Construir referências também é construir infraestrutura.'],
-                '#c-spectrum .project-card p': ['AWSpectrum LATAM é a primeira comunidade de mulheres focada em AWS na América Latina. Eu a fundei para tornar visível o talento diverso e criar espaços onde mais pessoas possam aprender, participar, falar e liderar.', 'Coordeno uma comunidade multidisciplinar com pessoas em tecnologia, conteúdo, design, web, promoção, recrutamento, logística, staff e parcerias. Não se trata apenas de organizar eventos: estou construindo identidade, estrutura, equipes, comunicação e estratégia desde o início.', '“A representação muda o que as pessoas acreditam que podem se tornar.”'],
-                '#c-impact h2': ['06 — Reconhecimento e impacto'],
-                '#c-impact > .lede': ['Não quero que meu portfólio apenas liste tecnologias. Quero mostrar o que fiz com elas e quem ajudei a se aproximar delas.'],
-                '#c-impact .impact-stat span': ['Palestras técnicas no México', 'Alunos de programação', 'Colaboradores e voluntários da comunidade', 'Experiência internacional de P&D em Osaka', 'Poster aceito no QSEEC26', 'AWS Community Builder, Machine Learning, segundo ano consecutivo'],
-                '#c-impact .timeline-list h3': ['Reconhecimentos e marcos'],
-                '#c-impact .timeline-list p': ['AWS New Voices Alum · Fundadora da AWSpectrum LATAM · Palestrante selecionada para o AWS Summit Mexico 2026 · Quantum Spotlight · Purdue QSTEP2026 aceito · Mentora e Project Lead do QIntern 2026 · Facilitadora de workshops técnicos.'],
-                '#c-projects h2': ['07 — Projetos em destaque'],
-                '#c-projects > .lede': ['Não quero que meu portfólio apenas liste tecnologias. Quero mostrar o que construí com elas.'],
-                '#c-community h2': ['08 — Liderança, comunidade e palestras'],
-                '#c-contact h2': ['09 — Contato'],
-                '#c-contact .lede': ['Vamos construir o futuro de Cloud, Quantum e IA.'],
-                '.action-band strong': ['Quer conhecer a jornada completa?', 'Comunidades também são construídas.', 'Ideias podem ganhar forma.'],
-                '.action-band p > span': ['Explore como conecto pesquisa, software e tecnologias emergentes.', 'A AWSpectrum LATAM transforma representação em oportunidades concretas.', 'Conheça os projetos onde essas tecnologias ganham vida.'],
-                '.action-band .classic-cta': ['Ver minha experiência ↗', 'Conhecer a AWSpectrum ↗', 'Explorar projetos ↗']
-            }
-        };
-
-        const phoneLanguageCopy = {
-            es: {
-                '.menu-list button': ['1. SOBRE MÍ & TRAYECTORIA', '2. TECNOLOGÍA & ENFOQUE', '3. PROYECTOS DESTACADOS', '4. EXPERIENCIA R&D', '5. COMUNIDAD & CHARLAS', '6. CONTACTO & ENLACES'],
-                '#menu-about .back-btn': ['[x] REGRESAR'], '#menu-about h2': ['SOBRE MÍ'],
-                '#menu-about p': ['Mi trayectoria no ha sido lineal, y precisamente ahí está una de mis mayores fortalezas. Empecé en Ingeniería en Metalurgia y Materiales y después decidí moverme hacia Ingeniería en Desarrollo de Software.', 'Mi curiosidad me llevó por VR/AR → Neurotecnología → Cloud → IA → Computación Cuántica → Construcción de Comunidad.', 'Construyo puentes entre Research ↔ Industry, Software ↔ Emerging Tech y AI ↔ Cloud.'],
-                '#menu-skills .back-btn': ['[x] REGRESAR'], '#menu-skills h2': ['LO QUE CONSTRUYO'],
-                '#menu-skills p': ['Ingeniería de Software: Python, Rust, Flutter, APIs, CLI tools, prototipado e integración de sistemas.', 'Cloud & AWS: arquitectura AWS, S3, Braket, serverless y flujos híbridos clásico-cuánticos.', 'IA & Machine Learning: IA generativa, Agentic AI, LangChain/LangGraph y modelos locales con Ollama.', 'Computación Cuántica: algoritmos simulados, QAOA y optimización desde una perspectiva práctica.'],
-                '#menu-projects .back-btn': ['[x] REGRESAR'], '#menu-projects h2': ['PROYECTOS DESTACADOS'],
-                '#menu-experience .back-btn': ['[x] REGRESAR'], '#menu-experience h2': ['EXPERIENCIA INTERNACIONAL DE I+D'],
-                '#menu-experience p': ['Mirai Innovation Research Institute — Osaka, Japón', 'Participé en un proyecto internacional en la intersección de Neurotechnology + Software + VR + AI + HCI.', 'Trabajé con Python, EEG en tiempo real, AURA EEG, Unity, Meta Quest 2 y comunicación por sockets Wi-Fi. Desarrollé Nihongo Crisis y presenté el trabajo ante el CEO y el Director de Innovación.'],
-                '#menu-community .back-btn': ['[x] REGRESAR'], '#menu-community h2': ['COMUNIDAD & IMPACTO'],
-                '#menu-community p': ['AWSpectrum LATAM: fundadora y Community Lead de la primera comunidad de mujeres enfocada en AWS en Latinoamérica.', 'Teaching & Mentorship: instructora de programación para más de 50 estudiantes y mentora en AWS Builders y QIntern 2026.'],
-                '#menu-community .sub-item strong': ['> VER CHARLAS Y SESIONES'],
-                '#menu-sessions .back-btn': ['[<] REGRESAR'], '#menu-sessions h2': ['CHARLAS Y MEDIA'], '#menu-sessions p': ['He participado en más de 10 eventos técnicos en México sobre AWS, Cloud, IA y Quantum.'], '#menu-sessions h3': ['Ver sesiones anteriores'],
-                '#menu-contact .back-btn': ['[x] REGRESAR'], '#menu-contact h2': ['LINK_TREE'], '#menu-contact p': ['Conectemos para construir el futuro de Cloud, Quantum e IA.']
-            },
-            en: {
-                '.menu-list button': ['1. ABOUT ME & JOURNEY', '2. TECH & FOCUS', '3. PINNED PROJECTS', '4. R&D EXPERIENCE', '5. COMMUNITY & TALKS', '6. CONTACT & LINKS'],
-                '#menu-about .back-btn': ['[x] RETURN'], '#menu-about h2': ['ABOUT ME'],
-                '#menu-about p': ['My journey has not been linear, and that is one of my biggest strengths. I started in Metallurgy and Materials Engineering before moving into Software Development Engineering.', 'My curiosity led me through VR/AR → Neurotechnology → Cloud → AI → Quantum Computing → Community Building.', 'I build bridges between Research ↔ Industry, Software ↔ Emerging Tech, and AI ↔ Cloud.'],
-                '#menu-skills .back-btn': ['[x] RETURN'], '#menu-skills h2': ['WHAT I BUILD'],
-                '#menu-skills p': ['Software Engineering: Python, Rust, Flutter, APIs, CLI tools, prototyping, and systems integration.', 'Cloud & AWS: AWS architecture, S3, Braket, serverless, and hybrid classical-quantum workflows.', 'AI & Machine Learning: Generative AI, Agentic AI, LangChain/LangGraph, and local models with Ollama.', 'Quantum Computing: simulated algorithms, QAOA, and optimization from a practical perspective.'],
-                '#menu-projects .back-btn': ['[x] RETURN'], '#menu-projects h2': ['PINNED PROJECTS'],
-                '#menu-experience .back-btn': ['[x] RETURN'], '#menu-experience h2': ['INTERNATIONAL R&D EXPERIENCE'],
-                '#menu-experience p': ['Mirai Innovation Research Institute — Osaka, Japan', 'I participated in an international project at the intersection of Neurotechnology + Software + VR + AI + HCI.', 'I worked with Python, real-time EEG, AURA EEG, Unity, Meta Quest 2, and Wi-Fi socket communication. I developed Nihongo Crisis and presented the work to the CEO and Director of Innovation.'],
-                '#menu-community .back-btn': ['[x] RETURN'], '#menu-community h2': ['COMMUNITY & IMPACT'],
-                '#menu-community p': ['AWSpectrum LATAM: founder and Community Lead of the first AWS-focused women’s community in Latin America.', 'Teaching & Mentorship: programming instructor for 50+ students and mentor in AWS Builders and QIntern 2026.'],
-                '#menu-community .sub-item strong': ['> VIEW TALKS & SESSIONS'],
-                '#menu-sessions .back-btn': ['[<] BACK'], '#menu-sessions h2': ['TALKS & MEDIA'], '#menu-sessions p': ['I have participated in 10+ technical events in Mexico about AWS, Cloud, AI, and Quantum.'], '#menu-sessions h3': ['Watch previous sessions'],
-                '#menu-contact .back-btn': ['[x] RETURN'], '#menu-contact h2': ['LINK_TREE'], '#menu-contact p': ['Let’s connect and build the future of Cloud, Quantum, and AI.']
-            },
-            pt: {
-                '.menu-list button': ['1. SOBRE MIM & JORNADA', '2. TECNOLOGIA & FOCO', '3. PROJETOS EM DESTAQUE', '4. EXPERIÊNCIA DE P&D', '5. COMUNIDADE E PALESTRAS', '6. CONTATO E LINKS'],
-                '#menu-about .back-btn': ['[x] VOLTAR'], '#menu-about h2': ['SOBRE MIM'],
-                '#menu-about p': ['Minha trajetória não foi linear, e essa é uma das minhas maiores forças. Comecei em Engenharia Metalúrgica e de Materiais antes de migrar para Engenharia de Software.', 'Minha curiosidade me levou por VR/AR → Neurotecnologia → Cloud → IA → Computação Quântica → Construção de Comunidades.', 'Construo pontes entre Pesquisa ↔ Indústria, Software ↔ Tecnologia Emergente e IA ↔ Cloud.'],
-                '#menu-skills .back-btn': ['[x] VOLTAR'], '#menu-skills h2': ['O QUE CONSTRUO'],
-                '#menu-skills p': ['Engenharia de Software: Python, Rust, Flutter, APIs, ferramentas CLI, prototipagem e integração de sistemas.', 'Cloud & AWS: arquitetura AWS, S3, Braket, serverless e fluxos híbridos clássico-quânticos.', 'IA e Machine Learning: IA generativa, Agentic AI, LangChain/LangGraph e modelos locais com Ollama.', 'Computação Quântica: algoritmos simulados, QAOA e otimização de forma prática.'],
-                '#menu-projects .back-btn': ['[x] VOLTAR'], '#menu-projects h2': ['PROJETOS EM DESTAQUE'],
-                '#menu-experience .back-btn': ['[x] VOLTAR'], '#menu-experience h2': ['EXPERIÊNCIA INTERNACIONAL DE P&D'],
-                '#menu-experience p': ['Mirai Innovation Research Institute — Osaka, Japão', 'Participei de um projeto internacional na interseção de Neurotecnologia + Software + VR + IA + HCI.', 'Trabalhei com Python, EEG em tempo real, AURA EEG, Unity, Meta Quest 2 e comunicação por sockets Wi-Fi. Desenvolvi Nihongo Crisis e apresentei o trabalho ao CEO e ao Diretor de Inovação.'],
-                '#menu-community .back-btn': ['[x] VOLTAR'], '#menu-community h2': ['COMUNIDADE E IMPACTO'],
-                '#menu-community p': ['AWSpectrum LATAM: fundadora e Community Lead da primeira comunidade de mulheres focada em AWS na América Latina.', 'Ensino e Mentoria: instrutora de programação para mais de 50 alunos e mentora no AWS Builders e QIntern 2026.'],
-                '#menu-community .sub-item strong': ['> VER PALESTRAS E SESSÕES'],
-                '#menu-sessions .back-btn': ['[<] VOLTAR'], '#menu-sessions h2': ['PALESTRAS E MÍDIA'], '#menu-sessions p': ['Participei de mais de 10 eventos técnicos no México sobre AWS, Cloud, IA e Quantum.'], '#menu-sessions h3': ['Ver sessões anteriores'],
-                '#menu-contact .back-btn': ['[x] VOLTAR'], '#menu-contact h2': ['LINK_TREE'], '#menu-contact p': ['Vamos construir o futuro de Cloud, Quantum e IA.']
-            }
-        };
-
-        const translations = {
-            es: {
-                'controls.classic': '☰ Vista clásica', 'controls.phone': '📱 Vista 3D', 'controls.language': '🌐 ES | en | pt', 'system.boot': '[INICIANDO_SISTEMA]...', 'hero.kicker': '>_ Ingeniera de Software & Soluciones QAI', 'hero.title': 'Construyo puentes entre Cloud, Quantum y las personas que están aprendiendo a usarlos.', 'hero.description': 'AWS Community Builder, speaker técnica y fundadora de AWSpectrum LATAM. Exploro computación cuántica, flujos de IA multiagente y arquitecturas cloud con una mirada humana y práctica.',
-                'hero.ctaProjects': 'Ver proyectos destacados', 'hero.ctaCv': 'Descargar CV',
-                'proof.awsValue': 'AWS', 'proof.awsLabel': 'Community Builder · Machine Learning', 'proof.talksValue': '10+', 'proof.talksLabel': 'Charlas técnicas en México', 'proof.researchValue': 'Japón', 'proof.researchLabel': 'Experiencia internacional de I+D', 'proof.communityValue': 'AWSpectrum', 'proof.communityLabel': 'Fundadora y Community Lead',
-                'availability.title': 'Disponible para colaborar', 'availability.description': 'Trabajo en la intersección entre profundidad técnica, tecnología emergente e impacto comunitario.', 'availability.cloud': 'Arquitectura Cloud', 'availability.ai': 'Sistemas de IA multiagente', 'availability.quantum': 'Educación cuántica', 'availability.talks': 'Charlas técnicas', 'availability.research': 'Colaboraciones de investigación', 'availability.community': 'Alianzas de comunidad',
-                'projects.title': '07 — CASOS DE ESTUDIO', 'projects.intro': 'Trabajo seleccionado que muestra cómo convierto un problema en un sistema funcional.', 'case.problem': 'Problema:', 'case.role': 'Mi rol:', 'case.stack': 'STACK TECNOLÓGICO', 'case.outcome': 'RESULTADO', 'case.github': 'Ver GitHub ↗', 'case.sorority.kicker': 'CASO / 01 · SEGURIDAD COLECTIVA', 'case.sorority.problem': '¿Cómo entender la seguridad colectiva y la propagación de alertas mediante un sistema interactivo?', 'case.sorority.role': 'Diseñé la simulación y conecté un backend en Rust con una interfaz Flutter mediante FFI.', 'case.sorority.outcome': 'Red de confianza visual para explorar seguridad y alertas.', 'case.traffic.kicker': 'CASO / 02 · IA + CUÁNTICA', 'case.traffic.problem': '¿Cómo encontrar rutas más seguras durante inundaciones urbanas?', 'case.traffic.role': 'Construí el flujo híbrido con datos de inundación, machine learning, grafos y Amazon Braket.', 'case.traffic.outcome': 'Un puente práctico entre optimización clásica y experimentación cuántica.', 'case.qdrift.kicker': 'CASO / 03 · HERRAMIENTAS DEVELOPER', 'case.qdrift.problem': '¿Cómo hacer medible el fallo probabilístico en rutas lógicas distribuidas?', 'case.qdrift.role': 'Creé una CLI con entropía de Shannon y modelos de ruido para hacer observable el drift.', 'case.qdrift.outcome': 'Herramienta para razonar sobre sistemas probabilísticos.', 'case.neuro.kicker': 'CASO / 04 · IA MULTIAGENTE', 'case.neuro.problem': '¿Cómo transformar señales neuronales simuladas en razonamiento estructurado?', 'case.neuro.role': 'Diseñé un flujo multiagente con LangChain, LangGraph y Gradio.', 'case.neuro.outcome': 'Interfaz experimental para razonamiento estructurado multiagente.',
-                'talks.archiveTitle': 'Archivo de charlas', 'talks.archiveIntro': 'Sesiones técnicas donde Cloud, AI y Quantum se vuelven comprensibles, prácticas y compartibles.', 'talks.channel': 'Abrir YouTube ↗', 'talks.talk1Meta': 'SBG UNAM · Cloud & AWS · Clase técnica', 'talks.talk1Title': '#CertOps: Clase #1 - Intro. a la Nube y AWS', 'talks.talk2Meta': 'UG Playa Vicente · IA Generativa · PartyRock', 'talks.talk2Title': 'Clase 8: IA Generativa Sin Codigo: Crea Apps Inteligentes con PartyRock'
-            },
-            en: {
-                'controls.classic': '☰ Classic view', 'controls.phone': '📱 3D phone view', 'controls.language': '🌐 es | EN | pt', 'system.boot': '[BOOTING_SYSTEM]...', 'hero.kicker': '>_ Software & QAI Solutions Engineer', 'hero.title': 'I build bridges between Cloud, Quantum, and the people learning to use them.', 'hero.description': 'AWS Community Builder, technical speaker, and founder of AWSpectrum LATAM. I explore quantum computing, multi-agent AI workflows, and cloud architectures through a practical, human lens.',
-                'hero.ctaProjects': 'View selected work', 'hero.ctaCv': 'Download CV', 'proof.awsValue': 'AWS', 'proof.awsLabel': 'Community Builder · Machine Learning', 'proof.talksValue': '10+', 'proof.talksLabel': 'Technical talks across Mexico', 'proof.researchValue': 'Japan', 'proof.researchLabel': 'International R&D experience', 'proof.communityValue': 'AWSpectrum', 'proof.communityLabel': 'Founder & Community Lead', 'availability.title': 'Available for collaboration', 'availability.description': 'I work at the intersection of technical depth, emerging technology and community impact.', 'availability.cloud': 'Cloud architecture', 'availability.ai': 'Agentic AI systems', 'availability.quantum': 'Quantum education', 'availability.talks': 'Technical talks', 'availability.research': 'Research collaborations', 'availability.community': 'Community partnerships', 'projects.title': '07 — CASE STUDIES', 'projects.intro': 'Selected work showing how I move from a problem to a working system.', 'case.problem': 'Problem:', 'case.role': 'My role:', 'case.stack': 'TECH STACK', 'case.outcome': 'OUTCOME', 'case.github': 'View GitHub ↗', 'case.sorority.kicker': 'CASE STUDY / 01 · SOCIAL SAFETY', 'case.sorority.problem': 'How can collective safety and alert propagation be understood through an interactive system?', 'case.sorority.role': 'I designed the simulation and connected a Rust backend to a Flutter interface through FFI.', 'case.sorority.outcome': 'A visual trust network for exploring safety and alerts.', 'case.traffic.kicker': 'CASE STUDY / 02 · AI + QUANTUM', 'case.traffic.problem': 'How can people find safer routes during urban flooding?', 'case.traffic.role': 'I built the hybrid workflow combining flood data, machine learning, graph algorithms and Amazon Braket.', 'case.traffic.outcome': 'A practical bridge between classical optimization and quantum experimentation.', 'case.qdrift.kicker': 'CASE STUDY / 03 · DEVELOPER TOOLING', 'case.qdrift.problem': 'How can probabilistic failure in distributed logic paths become measurable?', 'case.qdrift.role': 'I created a CLI using Shannon entropy and noise models to make drift inspectable.', 'case.qdrift.outcome': 'A focused developer tool for reasoning about probabilistic systems.', 'case.neuro.kicker': 'CASE STUDY / 04 · MULTI-AGENT AI', 'case.neuro.problem': 'How can simulated neural signals be transformed into structured reasoning?', 'case.neuro.role': 'I designed a multi-agent workflow using LangChain, LangGraph and Gradio.', 'case.neuro.outcome': 'An experimental interface for multi-agent structured reasoning.', 'talks.archiveTitle': 'Talks archive', 'talks.archiveIntro': 'Technical sessions where Cloud, AI and Quantum become understandable, practical and shareable.', 'talks.channel': 'Open YouTube ↗', 'talks.talk1Meta': 'AWS Summit Mexico 2026 · AI / Optimization', 'talks.talk1Title': 'Caught in the Rain', 'talks.talk2Meta': 'AWSome Women Summit LATAM · Quantum', 'talks.talk2Title': 'From Classical to Quantum with AWS', 'talks.moreTitle': 'More sessions'
-            },
-            pt: {
-                'controls.classic': '☰ Vista clássica', 'controls.phone': '📱 Vista 3D', 'controls.language': '🌐 es | en | PT', 'system.boot': '[INICIANDO_SISTEMA]...', 'hero.kicker': '>_ Engenheira de Software & Soluções QAI', 'hero.title': 'Construo pontes entre Cloud, Quantum e as pessoas que estão aprendendo a usá-los.', 'hero.description': 'AWS Community Builder, palestrante técnica e fundadora da AWSpectrum LATAM. Exploro computação quântica, fluxos de IA multiagente e arquiteturas cloud com uma visão humana e prática.',
-                'hero.ctaProjects': 'Ver projetos em destaque', 'hero.ctaCv': 'Baixar CV', 'proof.awsValue': 'AWS', 'proof.awsLabel': 'Community Builder · Machine Learning', 'proof.talksValue': '10+', 'proof.talksLabel': 'Palestras técnicas no México', 'proof.researchValue': 'Japão', 'proof.researchLabel': 'Experiência internacional de P&D', 'proof.communityValue': 'AWSpectrum', 'proof.communityLabel': 'Fundadora e Community Lead', 'availability.title': 'Disponível para colaborar', 'availability.description': 'Trabalho na interseção entre profundidade técnica, tecnologia emergente e impacto comunitário.', 'availability.cloud': 'Arquitetura Cloud', 'availability.ai': 'Sistemas de IA multiagente', 'availability.quantum': 'Educação quântica', 'availability.talks': 'Palestras técnicas', 'availability.research': 'Colaborações de pesquisa', 'availability.community': 'Parcerias de comunidade', 'projects.title': '07 — CASOS DE ESTUDO', 'projects.intro': 'Trabalho selecionado mostrando como transformo um problema em um sistema funcional.', 'case.problem': 'Problema:', 'case.role': 'Meu papel:', 'case.stack': 'STACK TECNOLÓGICA', 'case.outcome': 'RESULTADO', 'case.github': 'Ver GitHub ↗', 'case.sorority.kicker': 'CASO / 01 · SEGURANÇA COLETIVA', 'case.sorority.problem': 'Como entender a segurança coletiva e a propagação de alertas por meio de um sistema interativo?', 'case.sorority.role': 'Desenhei a simulação e conectei um backend em Rust a uma interface Flutter via FFI.', 'case.sorority.outcome': 'Rede visual de confiança para explorar segurança e alertas.', 'case.traffic.kicker': 'CASO / 02 · IA + QUÂNTICA', 'case.traffic.problem': 'Como encontrar rotas mais seguras durante inundações urbanas?', 'case.traffic.role': 'Construí o fluxo híbrido com dados de inundação, machine learning, grafos e Amazon Braket.', 'case.traffic.outcome': 'Uma ponte prática entre otimização clássica e experimentação quântica.', 'case.qdrift.kicker': 'CASO / 03 · FERRAMENTAS DEVELOPER', 'case.qdrift.problem': 'Como tornar mensurável a falha probabilística em caminhos lógicos distribuídos?', 'case.qdrift.role': 'Criei uma CLI com entropia de Shannon e modelos de ruído para tornar o drift observável.', 'case.qdrift.outcome': 'Ferramenta para raciocinar sobre sistemas probabilísticos.', 'case.neuro.kicker': 'CASO / 04 · IA MULTIAGENTE', 'case.neuro.problem': 'Como transformar sinais neurais simulados em raciocínio estruturado?', 'case.neuro.role': 'Desenhei um fluxo multiagente com LangChain, LangGraph e Gradio.', 'case.neuro.outcome': 'Interface experimental para raciocínio estruturado multiagente.', 'talks.archiveTitle': 'Arquivo de palestras', 'talks.archiveIntro': 'Sessões técnicas onde Cloud, IA e Quantum se tornam compreensíveis, práticas e compartilháveis.', 'talks.channel': 'Abrir YouTube ↗', 'talks.talk1Meta': 'AWS Summit Mexico 2026 · IA / Otimização', 'talks.talk1Title': 'Presos na chuva', 'talks.talk2Meta': 'AWSome Women Summit LATAM · Quantum', 'talks.talk2Title': 'Do clássico ao quântico com AWS', 'talks.moreTitle': 'Mais sessões'
-            }
-        };
-
-        function applyLanguageContent(language) {
-            const copy = { ...languageCopy[language], ...phoneLanguageCopy[language] };
-            Object.entries(copy).forEach(([selector, values]) => {
-                document.querySelectorAll(selector).forEach((element, index) => {
-                    if (values[index] !== undefined) element.textContent = values[index];
-                });
-            });
-            document.querySelectorAll('[data-i18n]').forEach((element) => {
-                const value = translations[language][element.dataset.i18n];
-                if (value !== undefined) element.textContent = value;
-            });
-        }
-
-        function updateLanguage() {
-            const currentLang = langs[currentLangIndex];
-            body.classList.remove('lang-es', 'lang-en', 'lang-pt');
-            body.classList.add(`lang-${currentLang}`);
-            langToggleBtn.innerHTML = currentLang === 'es'
-                ? '<span>🌐 ES | en | pt</span>'
-                : currentLang === 'en'
-                    ? '<span>🌐 es | EN | pt</span>'
-                    : '<span>🌐 es | en | PT</span>';
-                    applyLanguageContent(currentLang);
-            try { localStorage.setItem('shel-lang', currentLang); } catch (e) { }
-        }
-
-        langToggleBtn.addEventListener('click', () => {
-            currentLangIndex = (currentLangIndex + 1) % langs.length;
-            updateLanguage();
-        });
+        import { CONFIG } from './js/config.js';
+        import { I18nManager, translations } from './js/i18n.js';
+        import { PhoneScene3D, ClassicScene3D, PlayerCharacter3D, PixelTrail } from './js/PhoneScene3D.js';
+        import { UIController } from './js/UIController.js';
 
         try {
-            const savedLang = localStorage.getItem('shel-lang');
-            if (savedLang && langs.includes(savedLang)) currentLangIndex = langs.indexOf(savedLang);
-        } catch (e) { }
-        updateLanguage();
-
-        function setupClassicInteractions() {
-            const classic = document.getElementById('mode-classic');
-            const progress = document.getElementById('classic-progress');
-            const sections = [...classic.querySelectorAll('.classic-section')];
-            const navLinks = [...classic.querySelectorAll('.classic-nav a')];
-            const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-            sections.forEach((section) => section.classList.add('reveal-ready'));
-
-            const updateProgress = () => {
-                const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-                const percentage = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
-                progress.style.width = `${Math.min(100, Math.max(0, percentage))}%`;
-            };
-            window.addEventListener('scroll', updateProgress, { passive: true });
-            updateProgress();
-
-            const revealObserver = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    entry.target.classList.toggle('is-visible', entry.isIntersecting);
-                });
-            }, { threshold: 0.12 });
-
-            const sectionObserver = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (!entry.isIntersecting) return;
-                    navLinks.forEach((link) => link.classList.toggle('is-active', link.getAttribute('href') === `#${entry.target.id}`));
-                });
-            }, { rootMargin: '-25% 0px -60% 0px', threshold: 0 });
-
-            sections.forEach((section) => {
-                revealObserver.observe(section);
-                sectionObserver.observe(section);
+            // 1. Initialize Localization
+            window.i18n = new I18nManager(translations, 'es', 'shel-lang');
+            
+            const langToggleBtn = document.getElementById('lang-toggle');
+            langToggleBtn.addEventListener('click', () => {
+                window.i18n.nextLanguage();
+                const currentLang = window.i18n.currentLang;
+                langToggleBtn.innerHTML = currentLang === 'es'
+                    ? '<span>🌐 ES | en | pt</span>'
+                    : currentLang === 'en'
+                        ? '<span>🌐 es | EN | pt</span>'
+                        : '<span>🌐 es | en | PT</span>';
+                        
+                const hamburger = document.getElementById('nav-hamburger');
+                if (hamburger) {
+                    const menuOpen = hamburger.getAttribute('aria-expanded') === 'true';
+                    hamburger.setAttribute('aria-label', menuOpen
+                        ? (currentLang === 'es' ? 'Cerrar menú' : currentLang === 'pt' ? 'Fechar menu' : 'Close navigation menu')
+                        : (currentLang === 'es' ? 'Abrir menú' : currentLang === 'pt' ? 'Abrir menu' : 'Open navigation menu')
+                    );
+                }
             });
 
-            if (reducedMotion) sections.forEach((section) => section.classList.add('is-visible'));
+            // 2. Initialize 3D Mini-Scenes
+            PlayerCharacter3D.init();
+            PixelTrail.init();
 
-            const statsObserver = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    const stat = entry.target;
-                    const output = stat.querySelector('b');
-                    const value = Number(stat.dataset.statValue);
-                    if (!entry.isIntersecting) {
-                        stat.classList.remove('is-counting');
-                        if (Number.isFinite(value)) output.textContent = `0${stat.dataset.statSuffix || ''}`;
-                        return;
-                    }
-                    stat.classList.add('is-counting');
-                    if (!Number.isFinite(value)) return;
-                    const suffix = stat.dataset.statSuffix || '';
-                    if (reducedMotion) {
-                        output.textContent = `${value}${suffix}`;
-                        return;
-                    }
-                    const start = performance.now();
-                    const duration = 1100;
-                    const tick = (now) => {
-                        const progressValue = Math.min(1, (now - start) / duration);
-                        const eased = 1 - Math.pow(1 - progressValue, 3);
-                        output.textContent = `${Math.round(value * eased)}${suffix}`;
-                        if (progressValue < 1) requestAnimationFrame(tick);
-                    };
-                    requestAnimationFrame(tick);
-                });
-            }, { threshold: 0.5 });
-
-            classic.querySelectorAll('.impact-stat').forEach((stat) => statsObserver.observe(stat));
+            // 3. Initialize UI & Event Listeners
+            // UIController will handle toggling ClassicScene3D and PhoneScene3D
+            UIController.init();
+        } catch (error) {
+            console.error('[CRITICAL ERROR] Failed to initialize application:', error);
+            const bootVeil = document.getElementById('boot-veil');
+            if (bootVeil) {
+                bootVeil.classList.add('hidden');
+                // Opcional: mostrar un mensaje de error en pantalla
+            }
         }
-
-        setupClassicInteractions();
-
-        let startMode = 'classic';
-        try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved === 'classic' || saved === '3d') startMode = saved;
-        } catch (e) { }
-
-        function hasWebGL() {
-            try {
-                const c = document.createElement('canvas');
-                return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl')));
-            } catch (e) { return false; }
-        }
-        if (!hasWebGL()) startMode = 'classic';
-
-        setMode(startMode, false);
-
-        requestAnimationFrame(() => { setTimeout(() => bootVeil.classList.add('hidden'), 250); });
     </script>
-</body>
 
-</html>
+
+</body></html>
