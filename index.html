@@ -305,12 +305,12 @@
         .top-controls {
             position: fixed; top: 16px; left: 16px; z-index: 400; display: flex; gap: 10px; align-items: center;
         }
-        .ui-toggle-btn {
+        .ui-toggle-btn { flex-shrink: 0;
             display: flex; align-items: center; gap: 8px; padding: 9px 14px; background: rgba(11, 9, 15, 0.85);
             border: 1.5px solid var(--cyan); border-radius: 20px; color: var(--cyan); font-family: var(--font-mono); font-size: 12px;
             letter-spacing: 0.5px; cursor: pointer; white-space: nowrap; transition: all 0.2s ease; box-shadow: 0 0 15px rgba(0, 255, 204, 0.15);
         }
-        @supports (backdrop-filter: blur(1px)) { .ui-toggle-btn { backdrop-filter: blur(6px); } }
+        @supports (backdrop-filter: blur(1px)) { .ui-toggle-btn { flex-shrink: 0; backdrop-filter: blur(6px); } }
         .ui-toggle-btn:hover { background: var(--cyan); color: var(--panel); box-shadow: 0 0 15px var(--cyan); }
 
         #skip-link { position: fixed; top: -50px; left: 16px; z-index: 999; background: var(--cyan); color: var(--panel); padding: 8px 14px; border-radius: 4px; font-size: 13px; transition: top 0.2s; }
@@ -346,6 +346,12 @@
         .classic-nav-links a:hover, .classic-nav-links a.is-active { color: var(--cyan); border-bottom-color: var(--cyan); text-shadow: 0 0 8px var(--cyan); }
         .classic-nav-links a.is-active::before { content: "● "; color: var(--pink); }
 
+        
+        @media (max-width: 420px) {
+            #lang-toggle span { display: inline-block; max-width: 48px; overflow: hidden; white-space: nowrap; vertical-align: bottom; }
+            .ui-toggle-btn { gap: 4px; padding: 6px 8px; font-size: 11px; }
+            #mode-toggle-label { max-width: 80px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: inline-block; vertical-align: bottom; }
+        }
         /* Hamburger button */
         .nav-hamburger {
             display: none; background: none; border: 1px solid var(--cyan); border-radius: 4px;
@@ -554,8 +560,10 @@
         .classic-hero .cta-row .classic-cta:hover::after { transform: translate(3px, -3px); }
         @media (max-width: 700px) {
             .top-controls { top: 8px; left: 8px; right: 8px; justify-content: space-between; gap: 6px; }
-            .top-controls .ui-toggle-btn { padding: 7px 9px; font-size: 10px; gap: 4px; }
-            body.mode-classic .top-controls { top: 12px; right: 12px; }
+            .top-controls .ui-toggle-btn { flex-shrink: 0; padding: 7px 9px; font-size: 10px; gap: 4px; }
+            body.mode-classic .top-controls { top: 12px; right: 12px; gap: 4px; }
+            .ui-toggle-btn { padding: 6px 8px; font-size: 10px; gap: 4px; letter-spacing: 0; }
+            #lang-toggle { padding: 6px 6px; }
             /* Hamburger visible, links row hidden on mobile */
             .nav-hamburger { display: block; }
             .classic-nav-links { display: none; }
@@ -563,7 +571,7 @@
             body.mode-classic .classic-nav-menu { padding: 8px 20px 16px; }
             body.mode-classic .classic-shell { padding: 72px 20px 64px; }
             body.mode-classic .classic-hero { min-height: auto; padding: 48px 0 64px; }
-            body.mode-classic .classic-hero h1 { font-size: clamp(32px, 10vw, 48px); letter-spacing: -1px; max-width: 100%; word-break: break-word; overflow-wrap: break-word; }
+            body.mode-classic .classic-hero h1 { font-size: clamp(30px, 9.5vw, 48px); letter-spacing: -1px; max-width: 100%; word-break: break-word; overflow-wrap: break-word; hyphens: auto; }
             body.mode-classic .classic-hero p { max-width: 100%; }
             .floating-sticker { display: none; }
             body.mode-classic .classic-hero::after { display: none; }
