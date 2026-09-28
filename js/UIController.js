@@ -211,6 +211,29 @@ import { CONFIG } from './config.js';
             const navLinks = [...classic.querySelectorAll('.classic-nav-links a, .classic-nav-menu a')];
             const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+
+        const hamburger = document.getElementById('nav-hamburger');
+        const navMenu = document.getElementById('classic-nav-menu');
+        
+        if (hamburger && navMenu) {
+            hamburger.addEventListener('click', () => {
+                const isExpanded = hamburger.getAttribute('aria-expanded') === 'true';
+                hamburger.setAttribute('aria-expanded', !isExpanded);
+                navMenu.style.display = isExpanded ? 'none' : 'flex';
+                hamburger.textContent = isExpanded ? '☰ MENU' : '✖ CERRAR';
+            });
+
+            // Close menu when clicking a link
+            navMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburger.setAttribute('aria-expanded', 'false');
+                    navMenu.style.display = 'none';
+                    hamburger.textContent = '☰ MENU';
+                });
+            });
+        }
+
+
             sections.forEach((section) => section.classList.add('reveal-ready'));
 
             const updateProgress = () => {

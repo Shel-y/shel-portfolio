@@ -118,7 +118,6 @@
             font-size: 15px;
             position: relative;
             isolation: auto !important;
-            transform-style: flat;
             backface-visibility: visible !important;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -213,22 +212,32 @@
         .phone-contact-link:hover { color: #fff; padding-left: 18px; text-shadow: 0 0 6px var(--pink); }
 
         .sub-item {
-            outline: 1px dashed var(--pink); outline-offset: -1px; padding: 1.5rem; margin-bottom: 1.2rem; line-height: 1.6;
+            border: 1px dashed var(--pink); padding: 1.5rem; margin-bottom: 1.2rem; line-height: 1.6;
             cursor: pointer; transition: background 0.2s, transform 0.2s; width: 100%; text-align: left; font: inherit; color: inherit; background: transparent;
             display: flex; flex-direction: column; gap: 8px;
         }
-        .sub-item:hover { background-color: rgba(255, 102, 178, 0.15); transform: translateX(4px); }
+        .sub-item { position: relative; transform-style: preserve-3d; }
+        .sub-item::before { content: ""; position: absolute; inset: 0; background-color: rgba(255, 102, 178, 0.15); opacity: 0; transform: translateZ(-1px); transition: opacity 0.2s; }
+        .sub-item:hover { transform: translateX(4px); }
+        .sub-item:hover::before { opacity: 1; }
         .sub-item strong { color: #fff; display: block; margin-bottom: 4px; }
         .sub-item small { font-size: 11px; color: var(--cyan); }
 
         .github-btn, .cv-btn {
             display: inline-flex; align-items: center; justify-content: center;
             margin-top: 10px; margin-bottom: 15px; padding: 10px 20px;
-            background: linear-gradient(45deg, #2b2b2b, #1a1a1a);
+            background: transparent;
             color: var(--cyan) !important; text-decoration: none; border: 1px solid var(--cyan);
             border-radius: 20px; font-weight: bold; font-size: 13px; transition: all 0.2s ease; width: 100%;
+            position: relative; transform-style: preserve-3d;
         }
-        .github-btn:hover, .cv-btn:hover { background: var(--cyan); color: var(--panel) !important; transform: scale(1.02); box-shadow: 0 0 15px var(--cyan); }
+        .github-btn::before, .cv-btn::before {
+            content: ""; position: absolute; inset: 0; border-radius: 20px;
+            background: linear-gradient(45deg, #2b2b2b, #1a1a1a);
+            transform: translateZ(-1px); transition: all 0.2s ease;
+        }
+        .github-btn:hover, .cv-btn:hover { color: var(--panel) !important; transform: scale(1.02); }
+        .github-btn:hover::before, .cv-btn:hover::before { background: var(--cyan); box-shadow: 0 0 15px var(--cyan); }
 
         /* Video Wrapper for YouTube */
         .video-wrapper {
@@ -485,10 +494,10 @@
         }
 
         /* Editorial portfolio layer: the 3D phone remains available as an alternate view. */
-        body.mode-classic { background: radial-gradient(circle at 80% 8%, rgba(255, 102, 178, 0.12), transparent 28rem), var(--ink); }
+        body.mode-classic { background: radial-gradient(circle at 80% 8%, rgba(255, 102, 178, 0.12), transparent 28rem), var(--ink); overflow-x: clip; width: 100%; }
         body.mode-classic #backdrop-fx { opacity: 0.45; }
         body.mode-classic .top-controls { top: 18px; left: auto; right: 22px; }
-        body.mode-classic .classic-shell { max-width: 1080px; padding: 80px 40px 96px; }
+        body.mode-classic .classic-shell { max-width: 1080px; padding: 80px 40px 96px; overflow-x: clip; }
         body.mode-classic .classic-nav-inner { padding: 14px 40px; }
         body.mode-classic .classic-nav-menu { padding: 8px 40px 16px; }
         body.mode-classic .classic-hero { min-height: 62vh; display: flex; flex-direction: column; justify-content: center; padding: 76px 0 96px; }
@@ -508,8 +517,10 @@
         body.mode-classic .timeline-list li:nth-child(odd), body.mode-classic .session-list li:nth-child(odd) { background: rgba(0, 0, 0, 0.18); }
         .video-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
         #phone-screen .video-links { grid-template-columns: 1fr; }
-        .video-link { display: flex; min-height: 150px; flex-direction: column; justify-content: flex-end; gap: 8px; padding: 20px; color: #fff; text-decoration: none; border: 1px solid rgba(0, 255, 204, 0.35); background: linear-gradient(145deg, rgba(0, 255, 204, 0.12), rgba(255, 102, 178, 0.18)), var(--panel); transition: transform 0.2s, border-color 0.2s; }
-        .video-link:hover { transform: translateY(-4px); border-color: var(--pink); box-shadow: 0 8px 24px rgba(255, 102, 178, 0.18); }
+        .video-link { display: flex; min-height: 150px; flex-direction: column; justify-content: flex-end; gap: 8px; padding: 20px; color: #fff; text-decoration: none; border: 1px solid rgba(0, 255, 204, 0.35); background: transparent; transition: transform 0.2s, border-color 0.2s; position: relative; transform-style: preserve-3d; }
+        .video-link::before { content: ""; position: absolute; inset: 0; background: linear-gradient(145deg, rgba(0, 255, 204, 0.12), rgba(255, 102, 178, 0.18)), var(--panel); transform: translateZ(-1px); transition: box-shadow 0.2s; }
+        .video-link:hover { transform: translateY(-4px); border-color: var(--pink); }
+        .video-link:hover::before { box-shadow: 0 8px 24px rgba(255, 102, 178, 0.18); }
         .video-link small { color: var(--pink); font-weight: bold; }
         .video-link { border: 1px solid rgba(0, 255, 204, 0.35); font: inherit; text-align: left; cursor: pointer; }
         .video-modal { position: fixed; inset: 0; z-index: 700; display: none; place-items: center; padding: 24px; background: rgba(5, 3, 8, 0.9); }
@@ -552,7 +563,9 @@
             body.mode-classic .classic-nav-menu { padding: 8px 20px 16px; }
             body.mode-classic .classic-shell { padding: 72px 20px 64px; }
             body.mode-classic .classic-hero { min-height: auto; padding: 48px 0 64px; }
-            body.mode-classic .classic-hero h1 { font-size: clamp(36px, 12vw, 58px); letter-spacing: -1px; }
+            body.mode-classic .classic-hero h1 { font-size: clamp(36px, 12vw, 58px); letter-spacing: -1px; max-width: 100%; }
+            body.mode-classic .classic-hero p { max-width: 100%; }
+            .floating-sticker { display: none; }
             body.mode-classic .classic-hero::after { display: none; }
             body.mode-classic .classic-section { padding: 64px 0; }
             body.mode-classic .classic-section:nth-of-type(odd) .section-intro h2 { text-align: left; }
@@ -775,6 +788,7 @@
             gap: 20px;
         }
         @media (max-width: 768px) {
+            .crew-card { min-width: 85vw; }
             .tech-flow { flex-direction: column; }
             .tech-flow::before { display: none; }
         }
@@ -921,6 +935,13 @@
                 0 4px 8px rgba(0,0,0,0.4);
             z-index: 10;
         }
+
+    
+        
+        
+
+    
+        
 
     </style>
 </head>
@@ -1506,4 +1527,19 @@
     </script>
 
 
-</body></html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
