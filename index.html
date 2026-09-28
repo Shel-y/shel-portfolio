@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="es"><head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, viewport-fit=cover">
     <meta name="color-scheme" content="dark">
     <title>Portafolio - Shel | Joselyn Lagunas</title>
 
@@ -318,7 +318,7 @@
         #mode-announcer { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
         /* ============ Classic mode Overhaul ============ */
-        #mode-classic { position: relative; z-index: 1; min-height: 100vh; }
+        #mode-classic { position: relative; z-index: 1; min-height: 100dvh; }
         #classic-bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
         .classic-shell { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 100px 24px 80px; }
@@ -563,7 +563,7 @@
             body.mode-classic .classic-nav-menu { padding: 8px 20px 16px; }
             body.mode-classic .classic-shell { padding: 72px 20px 64px; }
             body.mode-classic .classic-hero { min-height: auto; padding: 48px 0 64px; }
-            body.mode-classic .classic-hero h1 { font-size: clamp(36px, 12vw, 58px); letter-spacing: -1px; max-width: 100%; }
+            body.mode-classic .classic-hero h1 { font-size: clamp(32px, 10vw, 48px); letter-spacing: -1px; max-width: 100%; word-break: break-word; overflow-wrap: break-word; }
             body.mode-classic .classic-hero p { max-width: 100%; }
             .floating-sticker { display: none; }
             body.mode-classic .classic-hero::after { display: none; }
@@ -572,9 +572,17 @@
             .action-band { align-items: flex-start; flex-direction: column; gap: 16px; }
             body.mode-classic .project-grid, .video-links, .profile-grid, .impact-grid { grid-template-columns: 1fr; }
             body.mode-classic .classic-hero .cta-row { flex-direction: column; align-items: flex-start; }
-            .proof-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .proof-strip { grid-template-columns: 1fr; }
             .availability-panel, .case-study { grid-template-columns: 1fr; }
             .archive-intro { display: block; }
+            body.mode-classic .project-card { padding: 20px; }
+            .profile-block { padding: 16px; }
+            .availability-panel { padding: 20px; }
+            .video-link { padding: 16px; }
+            .timeline-card-container, .timeline-card-container.right { padding-left: 30px !important; }
+            .project-timeline::before { left: 10px; }
+            body.mode-classic .timeline-list li, body.mode-classic .session-list li { padding: 16px; }
+
         }
 
         /* Tablet: show hamburger, hide inline links */
